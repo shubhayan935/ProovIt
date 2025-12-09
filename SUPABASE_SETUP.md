@@ -5,9 +5,9 @@
 Run this SQL in your Supabase project's SQL Editor:
 
 ```sql
--- PROFILES
+-- PROFILES (not using Supabase Auth, phone number is primary auth)
 create table public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
+  id uuid primary key default gen_random_uuid(),
   phone_number text unique not null,
   username text,
   full_name text,
@@ -79,61 +79,59 @@ alter table public.streaks enable row level security;
 alter table public.proofs enable row level security;
 alter table public.friendships enable row level security;
 
--- Profiles policies
-create policy "Users can view own profile"
+-- Profiles policies (using phone_number instead of auth.uid)
+create policy "Anyone can view profiles"
 on public.profiles for select
-using (auth.uid() = id);
+using (true);
 
-create policy "Users can insert own profile"
+create policy "Anyone can insert profiles"
 on public.profiles for insert
-with check (auth.uid() = id);
+with check (true);
 
--- Goals policies
-create policy "Users can select own goals"
+create policy "Users can update own profile by phone"
+on public.profiles for update
+using (true);
+
+-- Goals policies (phone-based auth, permissive for now)
+create policy "Anyone can select goals"
 on public.goals for select
-using (auth.uid() = user_id);
+using (true);
 
-create policy "Users can insert own goals"
+create policy "Anyone can insert goals"
 on public.goals for insert
-with check (auth.uid() = user_id);
+with check (true);
 
-create policy "Users can update own goals"
+create policy "Anyone can update goals"
 on public.goals for update
-using (auth.uid() = user_id);
+using (true);
 
 -- Proofs policies
-create policy "Users can select own proofs"
+create policy "Anyone can select proofs"
 on public.proofs for select
-using (auth.uid() = user_id);
+using (true);
 
-create policy "Users can insert own proofs"
+create policy "Anyone can insert proofs"
 on public.proofs for insert
-with check (auth.uid() = user_id);
+with check (true);
 
 -- Streaks policies
-create policy "Users can view own streaks"
+create policy "Anyone can view streaks"
 on public.streaks for select
-using (exists (
-  select 1 from public.goals
-  where goals.id = streaks.goal_id
-  and goals.user_id = auth.uid()
-));
+using (true);
 
-create policy "Users can update own streaks"
+create policy "Anyone can update streaks"
 on public.streaks for update
-using (exists (
-  select 1 from public.goals
-  where goals.id = streaks.goal_id
-  and goals.user_id = auth.uid()
-));
+using (true);
 
-create policy "Users can insert own streaks"
+create policy "Anyone can insert streaks"
 on public.streaks for insert
-with check (exists (
-  select 1 from public.goals
-  where goals.id = streaks.goal_id
-  and goals.user_id = auth.uid()
-));
+with check (true);
+
+-- NOTE: These permissive policies work because authentication happens
+-- via Twilio (not Supabase Auth). In production, you should:
+-- 1. Implement API key validation in your app
+-- 2. Use service role key server-side for sensitive operations
+-- 3. Add application-level permission checks
 ```
 
 ## Storage Bucket

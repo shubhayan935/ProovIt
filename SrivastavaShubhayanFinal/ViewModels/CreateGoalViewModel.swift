@@ -54,8 +54,11 @@ final class CreateGoalViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            // Get mock user ID for now
-            let mockUserId = UUID()
+            // Get current user ID from session
+            guard let userId = UserSession.shared.userId else {
+                errorMessage = "User not logged in"
+                return
+            }
 
             let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
             let trimmedDescription = description.trimmingCharacters(in: .whitespaces)
@@ -64,7 +67,7 @@ final class CreateGoalViewModel: ObservableObject {
                 title: trimmedTitle,
                 description: trimmedDescription.isEmpty ? nil : trimmedDescription,
                 frequency: selectedFrequency,
-                userId: mockUserId
+                userId: userId
             )
 
             goalCreated = true

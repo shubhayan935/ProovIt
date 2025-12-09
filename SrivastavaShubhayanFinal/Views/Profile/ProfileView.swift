@@ -9,15 +9,13 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var appVM: AppViewModel
+    @StateObject private var vm = ProfileViewModel()
 
-    @State private var phoneNumber = "+1 213-910-4667"
-    @State private var username: String?
-    @State private var activeStreaks = 3
-    @State private var totalGoals = 5
-    @State private var longestStreak = 12
-
-    var displayName: String {
-        username ?? phoneNumber
+    var greeting: String {
+        if let name = UserSession.shared.currentProfile?.full_name {
+            return "Hi, \(name)"
+        }
+        return "Hi there"
     }
 
     var body: some View {
@@ -36,7 +34,7 @@ struct ProfileView: View {
                                 .foregroundColor(AppColors.primaryGreen)
 
                             VStack(spacing: AppSpacing.sm) {
-                                Text(displayName)
+                                Text(greeting)
                                     .font(AppTypography.h1)
                                     .foregroundColor(AppColors.textDark)
 
@@ -53,7 +51,7 @@ struct ProfileView: View {
                                 HStack {
                                     StatItem(
                                         icon: "flame.fill",
-                                        value: "\(activeStreaks)",
+                                        value: "\(vm.activeStreaks)",
                                         label: "Active Streaks"
                                     )
 
@@ -62,7 +60,7 @@ struct ProfileView: View {
 
                                     StatItem(
                                         icon: "target",
-                                        value: "\(totalGoals)",
+                                        value: "\(vm.totalGoals)",
                                         label: "Total Goals"
                                     )
 
@@ -71,58 +69,9 @@ struct ProfileView: View {
 
                                     StatItem(
                                         icon: "chart.line.uptrend.xyaxis",
-                                        value: "\(longestStreak)",
+                                        value: "\(vm.longestStreak)",
                                         label: "Best Streak"
                                     )
-                                }
-                            }
-                        }
-                        .padding(.horizontal, AppSpacing.lg)
-
-                        // Achievement section
-                        VStack(alignment: .leading, spacing: AppSpacing.md) {
-                            Text("Achievements")
-                                .font(AppTypography.h3)
-                                .foregroundColor(AppColors.textDark)
-
-                            AppCard {
-                                HStack {
-                                    Image(systemName: "trophy.fill")
-                                        .resizable()
-                                        .frame(width: 30, height: 30)
-                                        .foregroundColor(AppColors.sand)
-
-                                    VStack(alignment: .leading) {
-                                        Text("Consistency Champion")
-                                            .font(AppTypography.body.weight(.semibold))
-                                            .foregroundColor(AppColors.textDark)
-
-                                        Text("Completed 7 days in a row")
-                                            .font(AppTypography.caption)
-                                            .foregroundColor(AppColors.textMedium)
-                                    }
-
-                                    Spacer()
-                                }
-                            }
-
-                            AppCard {
-                                HStack {
-                                    Image("AppLogo")
-                                        .resizable()
-                                        .frame(width: 30, height: 30)
-
-                                    VStack(alignment: .leading) {
-                                        Text("Getting Started")
-                                            .font(AppTypography.body.weight(.semibold))
-                                            .foregroundColor(AppColors.textDark)
-
-                                        Text("Created your first goal")
-                                            .font(AppTypography.caption)
-                                            .foregroundColor(AppColors.textMedium)
-                                    }
-
-                                    Spacer()
                                 }
                             }
                         }

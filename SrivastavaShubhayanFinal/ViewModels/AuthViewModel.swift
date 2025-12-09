@@ -81,12 +81,13 @@ final class AuthViewModel: ObservableObject {
         do {
             let profile = try await profilesRepo.getProfile(by: formattedPhoneNumber)
 
-            if profile == nil {
+            if let existingProfile = profile {
+                // Existing user - store profile and authenticate
+                UserSession.shared.setProfile(existingProfile)
+                appVM.loginMock()
+            } else {
                 // New user - show onboarding
                 showOnboarding = true
-            } else {
-                // Existing user - authenticate
-                appVM.loginMock()
             }
         } catch {
             errorMessage = error.localizedDescription

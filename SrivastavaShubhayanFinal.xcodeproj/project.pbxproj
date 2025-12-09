@@ -13,6 +13,7 @@
 		B446BD732EE83AEE00A9FB98 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = B446BD722EE83AEE00A9FB98 /* Realtime */; };
 		B446BD752EE83AEE00A9FB98 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = B446BD742EE83AEE00A9FB98 /* Storage */; };
 		B446BD772EE83AFA00A9FB98 /* TwilioVerifySDK in Frameworks */ = {isa = PBXBuildFile; productRef = B446BD762EE83AFA00A9FB98 /* TwilioVerifySDK */; };
+		B446BD7A2EE83C0000A9FB98 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = B446BD792EE83C0000A9FB98 /* Supabase */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B446BD7A2EE83C0000A9FB98 /* Supabase in Frameworks */,
 				B446BD712EE83AEE00A9FB98 /* PostgREST in Frameworks */,
 				B446BD6F2EE83AEE00A9FB98 /* Functions in Frameworks */,
 				B446BD772EE83AFA00A9FB98 /* TwilioVerifySDK in Frameworks */,
@@ -93,6 +95,7 @@
 				B446BCEC2EE6CF9D00A9FB98 /* SrivastavaShubhayanFinal */,
 				B446BCFF2EE6CF9F00A9FB98 /* SrivastavaShubhayanFinalTests */,
 				B446BD092EE6CF9F00A9FB98 /* SrivastavaShubhayanFinalUITests */,
+				B446BD782EE83BFF00A9FB98 /* Frameworks */,
 				B446BCEB2EE6CF9D00A9FB98 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,6 +108,13 @@
 				B446BD062EE6CF9F00A9FB98 /* SrivastavaShubhayanFinalUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B446BD782EE83BFF00A9FB98 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -133,6 +143,7 @@
 				B446BD722EE83AEE00A9FB98 /* Realtime */,
 				B446BD742EE83AEE00A9FB98 /* Storage */,
 				B446BD762EE83AFA00A9FB98 /* TwilioVerifySDK */,
+				B446BD792EE83C0000A9FB98 /* Supabase */,
 			);
 			productName = SrivastavaShubhayanFinal;
 			productReference = B446BCEA2EE6CF9D00A9FB98 /* SrivastavaShubhayanFinal.app */;
@@ -633,6 +644,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B446BD6B2EE8176600A9FB98 /* XCRemoteSwiftPackageReference "twilio-verify-ios" */;
 			productName = TwilioVerifySDK;
+		};
+		B446BD792EE83C0000A9FB98 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B446BD5C2EE8137300A9FB98 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

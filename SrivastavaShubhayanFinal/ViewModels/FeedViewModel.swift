@@ -25,9 +25,14 @@ final class FeedViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            // For now, use a mock UUID
-            let mockUserId = UUID()
-            feedProofs = try await feedRepo.getFeed(for: mockUserId)
+            // Get current user ID from session
+            guard let userId = UserSession.shared.userId else {
+                print("No user logged in")
+                feedProofs = []
+                return
+            }
+
+            feedProofs = try await feedRepo.getFeed(for: userId)
         } catch {
             errorMessage = error.localizedDescription
             print("Error loading feed: \(error)")

@@ -40,11 +40,14 @@ final class OnboardingViewModel: ObservableObject {
             let trimmedFullName = fullName.trimmingCharacters(in: .whitespaces)
             let trimmedUsername = username.trimmingCharacters(in: .whitespaces)
 
-            _ = try await profilesRepo.createProfile(
+            let profile = try await profilesRepo.createProfile(
                 phoneNumber: phoneNumber,
                 username: trimmedUsername,
                 fullName: trimmedFullName
             )
+
+            // Store the profile in session
+            UserSession.shared.setProfile(profile)
 
             profileCreated = true
         } catch {

@@ -13,41 +13,30 @@ final class AppViewModel: ObservableObject {
     @Published var currentUserId: UUID?
 
     init() {
-        // For now, simulate logged-out state
-        // TODO: After adding Supabase SDK, check actual session
         checkSession()
     }
 
     func checkSession() {
-        // TODO: Uncomment after adding Supabase SDK
-        /*
-        Task {
-            do {
-                let session = try await SupabaseClientService.shared.client.auth.session
-                self.isAuthenticated = (session.user != nil)
-                if let user = session.user, let userId = UUID(uuidString: user.id) {
-                    self.currentUserId = userId
-                }
-            } catch {
-                self.isAuthenticated = false
-                self.currentUserId = nil
-            }
+        // Check if user has a saved session in UserDefaults
+        if let profile = UserSession.shared.currentProfile {
+            self.isAuthenticated = true
+            self.currentUserId = profile.id
+            print("✅ Restored session for user: \(profile.phone_number)")
+        } else {
+            self.isAuthenticated = false
+            self.currentUserId = nil
         }
-        */
-
-        // Temporary: Start with logged-out
-        self.isAuthenticated = false
-        self.currentUserId = nil
     }
 
     func loginMock() {
-        // For testing without Supabase
+        // Use real user ID from session
         self.isAuthenticated = true
-        self.currentUserId = UUID()
+        self.currentUserId = UserSession.shared.userId
     }
 
     func logout() {
         self.isAuthenticated = false
         self.currentUserId = nil
+        UserSession.shared.clearSession()
     }
 }

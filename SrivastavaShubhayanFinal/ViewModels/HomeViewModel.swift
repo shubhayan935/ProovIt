@@ -24,9 +24,14 @@ final class HomeViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            // For now, use a mock UUID
-            let mockUserId = UUID()
-            goals = try await goalsRepo.fetchGoals(for: mockUserId)
+            // Get current user ID from session
+            guard let userId = UserSession.shared.userId else {
+                print("No user logged in")
+                goals = []
+                return
+            }
+
+            goals = try await goalsRepo.fetchGoals(for: userId)
         } catch {
             print("Error loading goals: \(error)")
         }

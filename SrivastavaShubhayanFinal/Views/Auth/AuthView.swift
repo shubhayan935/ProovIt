@@ -58,28 +58,18 @@ struct PhoneNumberEntryView: View {
                 .frame(height: 40)
 
             // Phone number field
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                HStack {
-                    Text("Phone number")
-                        .font(AppTypography.body)
-                        .foregroundColor(AppColors.textDark)
+            HStack {
+                Text("Phone number")
+                    .font(AppTypography.body)
+                    .foregroundColor(AppColors.textDark)
 
-                    Spacer()
-
-                    if !vm.phoneNumber.isEmpty {
-                        Text(vm.formattedPhoneNumber)
-                            .font(AppTypography.body)
-                            .foregroundColor(AppColors.textMedium)
-                    }
-                }
+                Spacer()
 
                 TextField("", text: $vm.phoneNumber)
                     .keyboardType(.phonePad)
                     .font(AppTypography.body)
-                    .padding()
-                    .background(AppColors.cardWhite)
-                    .cornerRadius(16)
-                    .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 2)
+                    .foregroundColor(AppColors.textMedium)
+                    .multilineTextAlignment(.trailing)
                     .focused($isPhoneFieldFocused)
                     .onChange(of: vm.phoneNumber) { _, newValue in
                         // Limit to 10 digits
@@ -91,6 +81,10 @@ struct PhoneNumberEntryView: View {
                         }
                     }
             }
+            .padding()
+            .background(AppColors.cardWhite)
+            .cornerRadius(16)
+            .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 2)
             .padding(.horizontal, AppSpacing.xl)
 
             Spacer()
@@ -185,27 +179,18 @@ struct OTPVerificationView: View {
                 .frame(height: 40)
 
             // OTP field
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                HStack {
-                    Text("Verification code")
-                        .font(AppTypography.body)
-                        .foregroundColor(AppColors.textDark)
+            HStack {
+                Text("Verification code")
+                    .font(AppTypography.body)
+                    .foregroundColor(AppColors.textDark)
 
-                    Spacer()
-
-                    Text(vm.formattedPhoneNumber)
-                        .font(AppTypography.body)
-                        .foregroundColor(AppColors.textMedium)
-                }
+                Spacer()
 
                 TextField("", text: $vm.otp)
                     .keyboardType(.numberPad)
-                    .font(.system(size: 32, weight: .medium))
-                    .multilineTextAlignment(.center)
-                    .padding()
-                    .background(AppColors.cardWhite)
-                    .cornerRadius(16)
-                    .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 2)
+                    .font(AppTypography.body)
+                    .foregroundColor(AppColors.textMedium)
+                    .multilineTextAlignment(.trailing)
                     .focused($isOTPFieldFocused)
                     .onChange(of: vm.otp) { _, newValue in
                         // Limit to 3 digits
@@ -217,6 +202,10 @@ struct OTPVerificationView: View {
                         }
                     }
             }
+            .padding()
+            .background(AppColors.cardWhite)
+            .cornerRadius(16)
+            .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 2)
             .padding(.horizontal, AppSpacing.xl)
 
             Spacer()

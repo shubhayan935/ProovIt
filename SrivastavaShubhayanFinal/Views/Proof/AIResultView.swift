@@ -147,7 +147,7 @@ struct AIResultView: View {
                                     .foregroundColor(AppColors.cardWhite)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, AppSpacing.lg)
-                                    .background(AppColors.textDark)
+                                    .background(AppColors.primaryGreen)
                                     .cornerRadius(20)
                                 }
                                 .padding(.horizontal, AppSpacing.lg)
@@ -195,7 +195,7 @@ struct AIResultView: View {
                             .foregroundColor(AppColors.cardWhite)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, AppSpacing.lg)
-                            .background(AppColors.textDark)
+                            .background(AppColors.primaryGreen)
                             .cornerRadius(20)
                     }
                     .padding(.horizontal, AppSpacing.lg)
@@ -214,7 +214,7 @@ struct AIResultView: View {
                             .foregroundColor(AppColors.cardWhite)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, AppSpacing.lg)
-                            .background(AppColors.textDark)
+                            .background(AppColors.primaryGreen)
                             .cornerRadius(20)
                     }
                     .padding(.horizontal, AppSpacing.lg)
@@ -233,7 +233,7 @@ struct AIResultView: View {
                             .foregroundColor(AppColors.cardWhite)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, AppSpacing.lg)
-                            .background(AppColors.textDark)
+                            .background(AppColors.primaryGreen)
                             .cornerRadius(20)
                     }
                     .padding(.horizontal, AppSpacing.lg)

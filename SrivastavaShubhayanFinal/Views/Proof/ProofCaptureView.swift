@@ -142,7 +142,7 @@ struct ProofCaptureView: View {
                                     .foregroundColor(AppColors.cardWhite)
                                     .padding(.vertical, AppSpacing.lg)
                                     .frame(maxWidth: .infinity)
-                                    .background(AppColors.textDark)
+                                    .background(AppColors.primaryGreen)
                                     .cornerRadius(20)
                                 }
 
@@ -154,14 +154,14 @@ struct ProofCaptureView: View {
                                         Text("Take Photo")
                                             .font(AppTypography.body.weight(.semibold))
                                     }
-                                    .foregroundColor(AppColors.textDark)
+                                    .foregroundColor(AppColors.primaryGreen)
                                     .padding(.vertical, AppSpacing.lg)
                                     .frame(maxWidth: .infinity)
                                     .background(AppColors.cardWhite)
                                     .cornerRadius(20)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 20)
-                                            .stroke(AppColors.textDark.opacity(0.2), lineWidth: 1.5)
+                                            .stroke(AppColors.primaryGreen.opacity(0.3), lineWidth: 1.5)
                                     )
                                 }
                             }
@@ -185,7 +185,7 @@ struct ProofCaptureView: View {
                             .foregroundColor(AppColors.cardWhite)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, AppSpacing.lg)
-                            .background(AppColors.textDark)
+                            .background(AppColors.primaryGreen)
                             .cornerRadius(20)
                     }
                     .padding(.horizontal, AppSpacing.lg)

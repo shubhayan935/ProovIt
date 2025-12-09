@@ -29,10 +29,18 @@ struct AppHeader: View {
 
             // App Icon + Name
             HStack(spacing: AppSpacing.sm) {
-                Image("AppIcon")
-                    .resizable()
-                    .frame(width: 32, height: 32)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                if let logo = UIImage(named: "AppLogo") {
+                    Image(uiImage: logo)
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    // Fallback to SF Symbol
+                    Image(systemName: "leaf.circle.fill")
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                        .foregroundColor(AppColors.primaryGreen)
+                }
 
                 Text("ProovIt")
                     .font(AppTypography.h3)

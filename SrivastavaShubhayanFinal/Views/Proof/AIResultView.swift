@@ -24,128 +24,226 @@ struct AIResultView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        ZStack {
-            AppColors.sageGreen.opacity(0.1)
-                .ignoresSafeArea()
-
-            VStack(spacing: AppSpacing.xl) {
-                // Image preview
-                if let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxHeight: 200)
-                        .cornerRadius(16)
-                        .shadow(color: .black.opacity(0.1), radius: 8)
-                }
-
-                // Result
-                if isLoading {
-                    VStack(spacing: AppSpacing.md) {
-                        ProgressView()
-                            .tint(AppColors.primaryGreen)
-                            .scaleEffect(1.5)
-
-                        Text("Analyzing your proof...")
-                            .font(AppTypography.h3)
-                            .foregroundColor(AppColors.textDark)
-
-                        Text("Our AI is verifying your photo")
-                            .font(AppTypography.body)
-                            .foregroundColor(AppColors.textMedium)
-                    }
-                } else if let result = result {
-                    AppCard {
-                        VStack(spacing: AppSpacing.md) {
-                            // Icon
-                            Image(systemName: result.verified ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                .resizable()
-                                .frame(width: 60, height: 60)
-                                .foregroundColor(result.verified ? AppColors.primaryGreen : .red)
-
-                            // Title
-                            Text(result.verified ? "Great job!" : "Hmm, not quite...")
-                                .font(AppTypography.h2)
-                                .foregroundColor(result.verified ? AppColors.primaryGreen : .red)
-
-                            // Confidence
-                            Text("Confidence: \(Int(result.score * 100))%")
-                                .font(AppTypography.body)
-                                .foregroundColor(AppColors.textDark)
-
-                            // Reason
-                            Text(result.reason)
-                                .font(AppTypography.body)
-                                .foregroundColor(AppColors.textMedium)
-                                .multilineTextAlignment(.center)
-                        }
-                    }
-                    .padding(.horizontal, AppSpacing.lg)
-
-                    // Actions
-                    VStack(spacing: AppSpacing.md) {
-                        if result.verified {
-                            if didSaveProof {
-                                HStack {
-                                    Image(systemName: "checkmark.circle.fill")
-                                    Text("Streak updated!")
-                                }
-                                .font(AppTypography.h3)
-                                .foregroundColor(AppColors.primaryGreen)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(AppColors.primaryGreen.opacity(0.1))
-                                .cornerRadius(16)
-                            } else {
-                                PrimaryButton(title: "Add to Streak") {
-                                    saveProof()
-                                }
-                            }
-
-                            Button("Done") {
-                                dismiss()
-                            }
-                            .font(AppTypography.body)
-                            .foregroundColor(AppColors.sand)
-                        } else {
-                            PrimaryButton(title: "Try Another Photo") {
-                                dismiss()
-                            }
-                        }
-                    }
-                    .padding(.horizontal, AppSpacing.lg)
-                } else if let error = errorMessage {
-                    AppCard {
-                        VStack(spacing: AppSpacing.md) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .resizable()
-                                .frame(width: 60, height: 60)
-                                .foregroundColor(.orange)
-
-                            Text("Oops!")
-                                .font(AppTypography.h2)
-                                .foregroundColor(AppColors.textDark)
-
-                            Text(error)
-                                .font(AppTypography.body)
-                                .foregroundColor(.red)
-                                .multilineTextAlignment(.center)
-                        }
-                    }
-                    .padding(.horizontal, AppSpacing.lg)
-
-                    PrimaryButton(title: "Try Again") {
-                        dismiss()
-                    }
-                    .padding(.horizontal, AppSpacing.lg)
+        VStack(spacing: 0) {
+            // Header with back button and step indicator
+            HStack(spacing: AppSpacing.md) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(AppColors.textDark)
+                        .frame(width: 44, height: 44)
+                        .background(AppColors.cardWhite)
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                 }
 
                 Spacer()
+
+                StepIndicator(currentStep: 3, totalSteps: 3)
+
+                Spacer()
+
+                // Invisible spacer for centering
+                Color.clear
+                    .frame(width: 44, height: 44)
             }
-            .padding(.top, AppSpacing.xl)
+            .padding(.horizontal, AppSpacing.lg)
+            .padding(.vertical, AppSpacing.md)
+
+            ScrollView {
+                VStack(spacing: AppSpacing.xl) {
+                    // Image preview
+                    if let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 220)
+                            .cornerRadius(20)
+                            .shadow(color: .black.opacity(0.1), radius: 8)
+                            .padding(.horizontal, AppSpacing.lg)
+                            .padding(.top, AppSpacing.sm)
+                    }
+
+                    // Result
+                    if isLoading {
+                        VStack(spacing: AppSpacing.lg) {
+                            ProgressView()
+                                .tint(AppColors.primaryGreen)
+                                .scaleEffect(1.5)
+                                .padding(.top, 40)
+
+                            VStack(spacing: AppSpacing.sm) {
+                                Text("Analyzing your proof...")
+                                    .font(AppTypography.h2)
+                                    .foregroundColor(AppColors.textDark)
+
+                                Text("Our AI is verifying your photo")
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textMedium)
+                            }
+                        }
+                        .padding(.horizontal, AppSpacing.lg)
+                    } else if let result = result {
+                        VStack(spacing: AppSpacing.xl) {
+                            // Result card
+                            VStack(spacing: AppSpacing.lg) {
+                                // Icon
+                                Image(systemName: result.verified ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                    .resizable()
+                                    .frame(width: 80, height: 80)
+                                    .foregroundColor(result.verified ? AppColors.primaryGreen : .red)
+
+                                // Title
+                                Text(result.verified ? "Great job!" : "Hmm, not quite...")
+                                    .font(AppTypography.h1)
+                                    .foregroundColor(AppColors.textDark)
+
+                                // Confidence badge
+                                HStack(spacing: AppSpacing.sm) {
+                                    Image(systemName: "gauge.high")
+                                        .font(.system(size: 14))
+                                    Text("Confidence: \(Int(result.score * 100))%")
+                                        .font(AppTypography.body.weight(.medium))
+                                }
+                                .foregroundColor(AppColors.textMedium)
+                                .padding(.horizontal, AppSpacing.lg)
+                                .padding(.vertical, AppSpacing.sm)
+                                .background(AppColors.sageGreen.opacity(0.2))
+                                .cornerRadius(12)
+
+                                // Reason
+                                Text(result.reason)
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textMedium)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, AppSpacing.lg)
+                            }
+                            .padding(.vertical, AppSpacing.xl)
+                            .frame(maxWidth: .infinity)
+                            .background(AppColors.cardWhite)
+                            .cornerRadius(24)
+                            .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 4)
+                            .padding(.horizontal, AppSpacing.lg)
+
+                            // Success state
+                            if result.verified && didSaveProof {
+                                VStack(spacing: AppSpacing.md) {
+                                    HStack(spacing: AppSpacing.sm) {
+                                        Image(systemName: "flame.fill")
+                                            .foregroundColor(AppColors.sand)
+                                        Text("Streak updated!")
+                                            .font(AppTypography.h3)
+                                            .foregroundColor(AppColors.textDark)
+                                    }
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(AppColors.primaryGreen.opacity(0.1))
+                                    .cornerRadius(16)
+
+                                    Button("Done") {
+                                        dismiss()
+                                    }
+                                    .font(AppTypography.body.weight(.semibold))
+                                    .foregroundColor(AppColors.cardWhite)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, AppSpacing.lg)
+                                    .background(AppColors.textDark)
+                                    .cornerRadius(20)
+                                }
+                                .padding(.horizontal, AppSpacing.lg)
+                            }
+                        }
+                    } else if let error = errorMessage {
+                        VStack(spacing: AppSpacing.xl) {
+                            VStack(spacing: AppSpacing.lg) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .resizable()
+                                    .frame(width: 80, height: 80)
+                                    .foregroundColor(.orange)
+
+                                Text("Oops!")
+                                    .font(AppTypography.h1)
+                                    .foregroundColor(AppColors.textDark)
+
+                                Text(error)
+                                    .font(AppTypography.body)
+                                    .foregroundColor(.red)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.vertical, AppSpacing.xl)
+                            .frame(maxWidth: .infinity)
+                            .background(AppColors.cardWhite)
+                            .cornerRadius(24)
+                            .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 4)
+                            .padding(.horizontal, AppSpacing.lg)
+                        }
+                    }
+                }
+                .padding(.bottom, 120)
+            }
+
+            // Bottom button
+            if let result = result, result.verified, !didSaveProof {
+                VStack(spacing: 0) {
+                    Divider()
+
+                    Button {
+                        saveProof()
+                    } label: {
+                        Text("Add to Streak")
+                            .font(AppTypography.body.weight(.semibold))
+                            .foregroundColor(AppColors.cardWhite)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppSpacing.lg)
+                            .background(AppColors.textDark)
+                            .cornerRadius(20)
+                    }
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.vertical, AppSpacing.lg)
+                    .background(AppColors.background)
+                }
+            } else if let result = result, !result.verified {
+                VStack(spacing: 0) {
+                    Divider()
+
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Try Another Photo")
+                            .font(AppTypography.body.weight(.semibold))
+                            .foregroundColor(AppColors.cardWhite)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppSpacing.lg)
+                            .background(AppColors.textDark)
+                            .cornerRadius(20)
+                    }
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.vertical, AppSpacing.lg)
+                    .background(AppColors.background)
+                }
+            } else if errorMessage != nil {
+                VStack(spacing: 0) {
+                    Divider()
+
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Try Again")
+                            .font(AppTypography.body.weight(.semibold))
+                            .foregroundColor(AppColors.cardWhite)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppSpacing.lg)
+                            .background(AppColors.textDark)
+                            .cornerRadius(20)
+                    }
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.vertical, AppSpacing.lg)
+                    .background(AppColors.background)
+                }
+            }
         }
-        .navigationTitle("Verification Result")
-        .navigationBarTitleDisplayMode(.inline)
+        .background(AppColors.background.ignoresSafeArea())
+        .navigationBarHidden(true)
         .task {
             await runVerification()
         }

@@ -13,43 +13,67 @@ struct SocialFeedView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                AppColors.background
-                    .ignoresSafeArea()
+            VStack(spacing: 0) {
+                // Custom Header
+                AppHeader()
 
                 if isLoading {
+                    Spacer()
                     ProgressView()
                         .tint(AppColors.primaryGreen)
+                    Spacer()
                 } else if mockProofs.isEmpty {
-                    VStack(spacing: AppSpacing.md) {
+                    Spacer()
+                    VStack(spacing: AppSpacing.lg) {
                         Image(systemName: "person.2")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 60, height: 60)
+                            .frame(width: 80, height: 80)
                             .foregroundColor(AppColors.sand)
 
-                        Text("No activity yet")
-                            .font(AppTypography.h3)
-                            .foregroundColor(AppColors.textDark)
+                        VStack(spacing: AppSpacing.sm) {
+                            Text("No activity yet")
+                                .font(AppTypography.h2)
+                                .foregroundColor(AppColors.textDark)
 
-                        Text("Follow friends to see their proofs")
-                            .font(AppTypography.body)
-                            .foregroundColor(AppColors.textMedium)
-                            .multilineTextAlignment(.center)
+                            Text("Follow friends to see their proofs")
+                                .font(AppTypography.body)
+                                .foregroundColor(AppColors.textMedium)
+                                .multilineTextAlignment(.center)
+                        }
                     }
+                    .padding(.horizontal, AppSpacing.xl)
+                    Spacer()
                 } else {
                     ScrollView {
-                        VStack(spacing: AppSpacing.lg) {
-                            ForEach(mockProofs) { proof in
-                                FeedProofCard(proof: proof)
+                        VStack(spacing: AppSpacing.xl) {
+                            // Title
+                            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                                Text("Social Feed")
+                                    .font(AppTypography.h1)
+                                    .foregroundColor(AppColors.textDark)
+
+                                Text("See what your friends are achieving")
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textMedium)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, AppSpacing.lg)
+                            .padding(.top, AppSpacing.md)
+
+                            VStack(spacing: AppSpacing.md) {
+                                ForEach(mockProofs) { proof in
+                                    FeedProofCard(proof: proof)
+                                }
+                            }
+                            .padding(.horizontal, AppSpacing.lg)
                         }
-                        .padding(.horizontal, AppSpacing.lg)
-                        .padding(.vertical, AppSpacing.lg)
+                        .padding(.bottom, AppSpacing.xl)
                     }
                 }
             }
-            .navigationTitle("Social Feed")
+            .background(AppColors.background.ignoresSafeArea())
+            .navigationBarHidden(true)
         }
         .task {
             await loadFeed()

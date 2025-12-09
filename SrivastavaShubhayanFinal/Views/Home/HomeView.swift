@@ -12,13 +12,13 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                AppColors.background
-                    .ignoresSafeArea()
+            VStack(spacing: 0) {
+                // Custom Header
+                AppHeader()
 
                 ScrollView {
-                    VStack(spacing: AppSpacing.lg) {
-                        // Header
+                    VStack(spacing: AppSpacing.xl) {
+                        // Title Section
                         VStack(alignment: .leading, spacing: AppSpacing.sm) {
                             Text("Today's Goals")
                                 .font(AppTypography.h1)
@@ -30,6 +30,7 @@ struct HomeView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, AppSpacing.lg)
+                        .padding(.top, AppSpacing.md)
 
                         if vm.isLoading {
                             ProgressView()
@@ -39,33 +40,40 @@ struct HomeView: View {
                             VStack(spacing: AppSpacing.md) {
                                 Image(systemName: "target")
                                     .resizable()
-                                    .frame(width: 60, height: 60)
+                                    .scaledToFit()
+                                    .frame(width: 80, height: 80)
                                     .foregroundColor(AppColors.sand)
+                                    .padding(.top, 60)
 
                                 Text("No goals yet")
-                                    .font(AppTypography.h3)
+                                    .font(AppTypography.h2)
                                     .foregroundColor(AppColors.textDark)
 
                                 Text("Create your first goal to get started")
                                     .font(AppTypography.body)
                                     .foregroundColor(AppColors.textMedium)
+                                    .multilineTextAlignment(.center)
                             }
-                            .padding(.top, AppSpacing.xl)
+                            .padding(.horizontal, AppSpacing.xl)
                         } else {
-                            ForEach(vm.goals) { goal in
-                                NavigationLink {
-                                    ProofCaptureView(goal: goal)
-                                } label: {
-                                    GoalCard(goal: goal)
+                            VStack(spacing: AppSpacing.md) {
+                                ForEach(vm.goals) { goal in
+                                    NavigationLink {
+                                        ProofCaptureView(goal: goal)
+                                    } label: {
+                                        GoalCard(goal: goal)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                             .padding(.horizontal, AppSpacing.lg)
                         }
                     }
-                    .padding(.vertical, AppSpacing.lg)
+                    .padding(.bottom, AppSpacing.xl)
                 }
             }
+            .background(AppColors.background.ignoresSafeArea())
+            .navigationBarHidden(true)
         }
     }
 }

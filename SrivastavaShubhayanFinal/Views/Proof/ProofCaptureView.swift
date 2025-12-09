@@ -15,19 +15,48 @@ struct ProofCaptureView: View {
     @State private var selectedImageData: Data?
     @State private var showCamera = false
     @State private var navigateToResult = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        ZStack {
-            AppColors.sageGreen.opacity(0.1)
-                .ignoresSafeArea()
+        VStack(spacing: 0) {
+            // Header with back button
+            HStack(spacing: AppSpacing.md) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(AppColors.textDark)
+                        .frame(width: 44, height: 44)
+                        .background(AppColors.cardWhite)
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                }
 
-            VStack(spacing: AppSpacing.xl) {
-                // Goal info
-                AppCard {
+                Spacer()
+
+                StepIndicator(currentStep: selectedImageData == nil ? 1 : 2, totalSteps: 3)
+
+                Spacer()
+
+                // Invisible spacer for centering
+                Color.clear
+                    .frame(width: 44, height: 44)
+            }
+            .padding(.horizontal, AppSpacing.lg)
+            .padding(.vertical, AppSpacing.md)
+
+            ScrollView {
+                VStack(spacing: AppSpacing.xl) {
+                    // Goal context
                     VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                        Text(goal.title)
-                            .font(AppTypography.h2)
-                            .foregroundColor(AppColors.textDark)
+                        HStack(spacing: AppSpacing.sm) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 16))
+                                .foregroundColor(AppColors.sand)
+
+                            Text(goal.title)
+                                .font(AppTypography.h2)
+                                .foregroundColor(AppColors.textDark)
+                        }
 
                         if let desc = goal.description {
                             Text(desc)
@@ -35,82 +64,138 @@ struct ProofCaptureView: View {
                                 .foregroundColor(AppColors.textMedium)
                         }
                     }
-                }
-                .padding(.horizontal, AppSpacing.lg)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.top, AppSpacing.md)
 
-                Spacer()
-
-                // Selected image preview
-                if let imageData = selectedImageData, let uiImage = UIImage(data: imageData) {
-                    VStack(spacing: AppSpacing.md) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 300)
-                            .cornerRadius(16)
-                            .shadow(color: .black.opacity(0.1), radius: 8)
-
-                        PrimaryButton(title: "Verify with AI") {
-                            navigateToResult = true
-                        }
-                        .padding(.horizontal, AppSpacing.lg)
-                    }
-                } else {
-                    VStack(spacing: AppSpacing.lg) {
-                        Image(systemName: "photo.on.rectangle.angled")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
-                            .foregroundColor(AppColors.sand)
-
-                        Text("Choose how to capture your proof")
-                            .font(AppTypography.body)
-                            .foregroundColor(AppColors.textMedium)
-                            .multilineTextAlignment(.center)
-
-                        VStack(spacing: AppSpacing.md) {
-                            PhotosPicker(selection: $selectedItem, matching: .images) {
-                                HStack {
-                                    Image(systemName: "photo.on.rectangle")
-                                    Text("Choose from Library")
-                                        .font(AppTypography.body.weight(.semibold))
-                                }
-                                .foregroundColor(AppColors.cardWhite)
-                                .padding(.vertical, AppSpacing.md)
-                                .frame(maxWidth: .infinity)
-                                .background(AppColors.primaryGreen)
-                                .cornerRadius(16)
+                    // Selected image preview
+                    if let imageData = selectedImageData, let uiImage = UIImage(data: imageData) {
+                        VStack(spacing: AppSpacing.xl) {
+                            // Success message
+                            HStack(spacing: AppSpacing.sm) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(AppColors.primaryGreen)
+                                Text("Perfect! Scan now.")
+                                    .font(AppTypography.h3)
+                                    .foregroundColor(AppColors.textDark)
                             }
+                            .padding(.top, AppSpacing.md)
 
-                            Button {
-                                showCamera = true
-                            } label: {
-                                HStack {
-                                    Image(systemName: "camera")
-                                    Text("Take Photo")
-                                        .font(AppTypography.body.weight(.semibold))
-                                }
-                                .foregroundColor(AppColors.primaryGreen)
-                                .padding(.vertical, AppSpacing.md)
-                                .frame(maxWidth: .infinity)
-                                .background(AppColors.cardWhite)
-                                .cornerRadius(16)
+                            // Image preview
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxHeight: 350)
+                                .cornerRadius(20)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(AppColors.primaryGreen, lineWidth: 2)
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .strokeBorder(
+                                            LinearGradient(
+                                                colors: [AppColors.primaryGreen.opacity(0.5), AppColors.sageGreen.opacity(0.3)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 3
+                                        )
                                 )
+                                .shadow(color: AppColors.primaryGreen.opacity(0.2), radius: 12, x: 0, y: 4)
+                                .padding(.horizontal, AppSpacing.lg)
+
+                            // Tips
+                            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                                TipRow(icon: "camera.viewfinder", text: "Make sure the proof is clearly visible")
+                                TipRow(icon: "light.max", text: "Ensure good lighting for best results")
+                                TipRow(icon: "checkmark.seal", text: "AI will verify this matches your goal")
                             }
+                            .padding(.horizontal, AppSpacing.lg)
                         }
-                        .padding(.horizontal, AppSpacing.lg)
+                    } else {
+                        VStack(spacing: AppSpacing.xl) {
+                            // Camera icon
+                            Image(systemName: "camera.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 120, height: 120)
+                                .foregroundColor(AppColors.sand)
+                                .padding(.top, 40)
+
+                            VStack(spacing: AppSpacing.sm) {
+                                Text("Capture your proof")
+                                    .font(AppTypography.h1)
+                                    .foregroundColor(AppColors.textDark)
+
+                                Text("Take a photo or choose from your library")
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textMedium)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.horizontal, AppSpacing.xl)
+
+                            // Buttons
+                            VStack(spacing: AppSpacing.md) {
+                                PhotosPicker(selection: $selectedItem, matching: .images) {
+                                    HStack(spacing: AppSpacing.sm) {
+                                        Image(systemName: "photo.on.rectangle")
+                                        Text("Choose from Library")
+                                            .font(AppTypography.body.weight(.semibold))
+                                    }
+                                    .foregroundColor(AppColors.cardWhite)
+                                    .padding(.vertical, AppSpacing.lg)
+                                    .frame(maxWidth: .infinity)
+                                    .background(AppColors.textDark)
+                                    .cornerRadius(20)
+                                }
+
+                                Button {
+                                    showCamera = true
+                                } label: {
+                                    HStack(spacing: AppSpacing.sm) {
+                                        Image(systemName: "camera.fill")
+                                        Text("Take Photo")
+                                            .font(AppTypography.body.weight(.semibold))
+                                    }
+                                    .foregroundColor(AppColors.textDark)
+                                    .padding(.vertical, AppSpacing.lg)
+                                    .frame(maxWidth: .infinity)
+                                    .background(AppColors.cardWhite)
+                                    .cornerRadius(20)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(AppColors.textDark.opacity(0.2), lineWidth: 1.5)
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, AppSpacing.lg)
+                        }
                     }
                 }
-
-                Spacer()
+                .padding(.bottom, 120) // Space for bottom button
             }
-            .padding(.top, AppSpacing.lg)
+
+            // Bottom button
+            if selectedImageData != nil {
+                VStack(spacing: 0) {
+                    Divider()
+
+                    Button {
+                        navigateToResult = true
+                    } label: {
+                        Text("Next")
+                            .font(AppTypography.body.weight(.semibold))
+                            .foregroundColor(AppColors.cardWhite)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppSpacing.lg)
+                            .background(AppColors.textDark)
+                            .cornerRadius(20)
+                    }
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.vertical, AppSpacing.lg)
+                    .background(AppColors.background)
+                }
+            }
         }
-        .navigationTitle("Log Proof")
-        .navigationBarTitleDisplayMode(.inline)
+        .background(AppColors.background.ignoresSafeArea())
+        .navigationBarHidden(true)
         .onChange(of: selectedItem) { _, newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self) {
@@ -128,6 +213,26 @@ struct ProofCaptureView: View {
             if let imageData = selectedImageData {
                 AIResultView(goal: goal, imageData: imageData)
             }
+        }
+    }
+}
+
+struct TipRow: View {
+    let icon: String
+    let text: String
+
+    var body: some View {
+        HStack(spacing: AppSpacing.md) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(AppColors.textDark.opacity(0.6))
+                .frame(width: 24)
+
+            Text(text)
+                .font(AppTypography.body)
+                .foregroundColor(AppColors.textMedium)
+
+            Spacer()
         }
     }
 }

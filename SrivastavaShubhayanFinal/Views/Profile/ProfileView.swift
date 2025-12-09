@@ -17,24 +17,30 @@ struct ProfileView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                AppColors.background
-                    .ignoresSafeArea()
+            VStack(spacing: 0) {
+                // Custom Header
+                AppHeader()
 
                 ScrollView {
                     VStack(spacing: AppSpacing.xl) {
                         // Profile header
-                        VStack(spacing: AppSpacing.md) {
+                        VStack(spacing: AppSpacing.lg) {
                             Image(systemName: "person.crop.circle.fill")
                                 .resizable()
-                                .frame(width: 80, height: 80)
+                                .frame(width: 100, height: 100)
                                 .foregroundColor(AppColors.primaryGreen)
 
-                            Text(username)
-                                .font(AppTypography.h2)
-                                .foregroundColor(AppColors.textDark)
+                            VStack(spacing: AppSpacing.sm) {
+                                Text(username)
+                                    .font(AppTypography.h1)
+                                    .foregroundColor(AppColors.textDark)
+
+                                Text("Building habits, one proof at a time")
+                                    .font(AppTypography.body)
+                                    .foregroundColor(AppColors.textMedium)
+                            }
                         }
-                        .padding(.top, AppSpacing.xl)
+                        .padding(.top, AppSpacing.md)
 
                         // Stats
                         AppCard {
@@ -119,15 +125,28 @@ struct ProfileView: View {
                         .padding(.horizontal, AppSpacing.lg)
 
                         // Logout button
-                        PrimaryButton(title: "Log Out") {
+                        Button {
                             appVM.logout()
+                        } label: {
+                            Text("Log Out")
+                                .font(AppTypography.body.weight(.semibold))
+                                .foregroundColor(.red)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, AppSpacing.lg)
+                                .background(AppColors.cardWhite)
+                                .cornerRadius(20)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.red.opacity(0.3), lineWidth: 1.5)
+                                )
                         }
                         .padding(.horizontal, AppSpacing.lg)
                         .padding(.bottom, AppSpacing.xl)
                     }
                 }
             }
-            .navigationTitle("Profile")
+            .background(AppColors.background.ignoresSafeArea())
+            .navigationBarHidden(true)
         }
     }
 }

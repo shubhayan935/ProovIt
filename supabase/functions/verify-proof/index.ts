@@ -2,9 +2,13 @@
 
 // This function:
 // 1. Accepts JSON: { imagePath: string, goalTitle: string }
-// 2. Builds a signed URL or uses the storage URL to get the image
-// 3. Calls OpenAI Vision with a prompt about the goal
+// 2. Creates a signed URL from the storage bucket to access the image
+// 3. Calls OpenAI Vision API with a prompt about the goal
 // 4. Returns { verified: boolean, score: number, reason: string }
+//
+// NOTE: Uses SUPABASE_SERVICE_ROLE_KEY to create signed URLs from the storage bucket.
+// The verification result is returned to the app, which then updates the database
+// using the authenticated user's credentials (respecting RLS policies).
 
 import { serve } from "https://deno.land/std@0.181.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";

@@ -7,7 +7,7 @@ The app now uses phone number + OTP authentication instead of email/password. Th
 
 ### Dev Credentials (Always Works)
 - **Phone Number**: `2139104667`
-- **OTP Code**: `123`
+- **OTP Code**: `123456`
 
 These credentials will always authenticate successfully without calling Twilio, making development and testing easier.
 
@@ -20,7 +20,7 @@ These credentials will always authenticate successfully without calling Twilio, 
    - "Continue" button sends OTP
 
 2. **OTP Verification**
-   - User enters 3-digit code
+   - User enters 6-digit code
    - App verifies code
    - On success, user is logged in
 
@@ -68,8 +68,8 @@ struct TwilioService {
     }
 
     static func sendOTP(to phoneNumber: String) async -> OTPResult {
-        // Generate random 3-digit code
-        let code = String(format: "%03d", Int.random(in: 100...999))
+        // Generate random 6-digit code
+        let code = String(format: "%06d", Int.random(in: 0...999999))
 
         // Store code temporarily (use UserDefaults or in-memory for demo)
         UserDefaults.standard.set(code, forKey: "pending_otp_\(phoneNumber)")
@@ -238,7 +238,7 @@ static func verifyOTP(phoneNumber: String, code: String) async -> OTPResult {
 ### Test with Dev Number
 1. Run app
 2. Enter phone: `2139104667`
-3. Enter OTP: `123`
+3. Enter OTP: `123456`
 4. Should log in successfully
 
 ### Test with Real Number
@@ -317,6 +317,6 @@ This way, Twilio credentials never leave the server.
 
 ---
 
-**Current Status**: ✅ UI implemented, ready for Twilio integration
-**Dev Credentials**: `2139104667` / `123` (always works)
-**Next Step**: Add TwilioService.swift and uncomment integration code
+**Current Status**: ✅ Twilio integration complete with TwilioService
+**Dev Credentials**: `2139104667` / `123456` (always works)
+**Next Step**: Configure environment variables and test with real phone numbers

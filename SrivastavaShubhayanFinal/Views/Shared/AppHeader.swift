@@ -18,20 +18,20 @@ struct AppHeader: View {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(AppColors.textDark)
-                        .frame(width: 44, height: 44)
-                        .background(AppColors.cardWhite)
+                        .frame(width: 22, height: 22)
+                        // .background(AppColors.cardWhite)
                         .clipShape(Circle())
                         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                 }
             }
 
-            Spacer()
+            // Spacer()
 
             // App Icon + Name
             HStack(spacing: AppSpacing.sm) {
                 Image("AppLogo")
                     .resizable()
-                    .frame(width: 32, height: 32)
+                    .frame(width: 44, height: 44)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 Text("ProovIt")

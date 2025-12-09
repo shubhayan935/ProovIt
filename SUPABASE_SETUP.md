@@ -8,7 +8,8 @@ Run this SQL in your Supabase project's SQL Editor:
 -- PROFILES
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  username text unique not null,
+  phone_number text unique not null,
+  username text,
   full_name text,
   created_at timestamptz default now()
 );
@@ -150,6 +151,9 @@ Set these secrets:
 supabase secrets set OPENAI_API_KEY=your_openai_key
 supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
+
+**Why is SUPABASE_SERVICE_ROLE_KEY needed?**
+The Edge Function uses it to create temporary signed URLs for accessing images in the storage bucket. These signed URLs are passed to OpenAI's Vision API for verification. The function does NOT write to the database - it only returns the verification result to the app, which then updates the database using the authenticated user's credentials (respecting RLS policies).
 
 ## Environment Variables
 

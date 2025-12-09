@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct SocialFeedView: View {
-    @State private var mockProofs: [FeedProof] = []
-    @State private var isLoading = true
+    @StateObject private var vm = FeedViewModel()
 
     var body: some View {
         NavigationStack {
@@ -17,12 +16,12 @@ struct SocialFeedView: View {
                 // Custom Header
                 AppHeader()
 
-                if isLoading {
+                if vm.isLoading {
                     Spacer()
                     ProgressView()
                         .tint(AppColors.primaryGreen)
                     Spacer()
-                } else if mockProofs.isEmpty {
+                } else if vm.feedProofs.isEmpty {
                     Spacer()
                     VStack(spacing: AppSpacing.lg) {
                         Image(systemName: "person.2")
@@ -47,22 +46,8 @@ struct SocialFeedView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: AppSpacing.xl) {
-                            // Title
-                            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                                Text("Social Feed")
-                                    .font(AppTypography.h1)
-                                    .foregroundColor(AppColors.textDark)
-
-                                Text("See what your friends are achieving")
-                                    .font(AppTypography.body)
-                                    .foregroundColor(AppColors.textMedium)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, AppSpacing.lg)
-                            .padding(.top, AppSpacing.md)
-
                             VStack(spacing: AppSpacing.md) {
-                                ForEach(mockProofs) { proof in
+                                ForEach(vm.feedProofs) { proof in
                                     FeedProofCard(proof: proof)
                                 }
                             }
@@ -70,60 +55,14 @@ struct SocialFeedView: View {
                         }
                         .padding(.bottom, AppSpacing.xl)
                     }
+                    .refreshable {
+                        await vm.refresh()
+                    }
                 }
             }
             .background(AppColors.background.ignoresSafeArea())
             .navigationBarHidden(true)
         }
-        .task {
-            await loadFeed()
-        }
-    }
-
-    private func loadFeed() async {
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-
-        // Mock data
-        mockProofs = [
-            FeedProof(
-                id: UUID(),
-                goal_id: UUID(),
-                user_id: UUID(),
-                image_path: "mock1.jpg",
-                caption: "Morning run done!",
-                verified: true,
-                verification_score: 0.92,
-                created_at: Date(),
-                goal_title: "Exercise for 30 minutes",
-                username: "sarah_runner"
-            ),
-            FeedProof(
-                id: UUID(),
-                goal_id: UUID(),
-                user_id: UUID(),
-                image_path: "mock2.jpg",
-                caption: nil,
-                verified: true,
-                verification_score: 0.88,
-                created_at: Date().addingTimeInterval(-3600),
-                goal_title: "Drink 8 glasses of water",
-                username: "hydro_mike"
-            ),
-            FeedProof(
-                id: UUID(),
-                goal_id: UUID(),
-                user_id: UUID(),
-                image_path: "mock3.jpg",
-                caption: "Chapter 5 completed!",
-                verified: true,
-                verification_score: 0.95,
-                created_at: Date().addingTimeInterval(-7200),
-                goal_title: "Read for 20 minutes",
-                username: "bookworm_jane"
-            )
-        ]
-
-        isLoading = false
     }
 }
 
@@ -131,69 +70,63 @@ struct FeedProofCard: View {
     let proof: FeedProof
 
     var body: some View {
-        AppCard {
-            VStack(alignment: .leading, spacing: AppSpacing.md) {
-                // Header
-                HStack {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 32, height: 32)
-                        .foregroundColor(AppColors.sand)
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
+            // Header
+            HStack {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .frame(width: 32, height: 32)
+                    .foregroundColor(AppColors.sand)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(proof.username)
-                            .font(AppTypography.body.weight(.semibold))
-                            .foregroundColor(AppColors.textDark)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(proof.username)
+                        .font(AppTypography.body.weight(.semibold))
+                        .foregroundColor(AppColors.textDark)
 
-                        if let date = proof.created_at {
-                            Text(timeAgo(from: date))
-                                .font(AppTypography.caption)
-                                .foregroundColor(AppColors.textMedium)
-                        }
-                    }
-
-                    Spacer()
-
-                    if proof.verified {
-                        Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(AppColors.primaryGreen)
+                    if let date = proof.created_at {
+                        Text(timeAgo(from: date))
+                            .font(AppTypography.caption)
+                            .foregroundColor(AppColors.textMedium)
                     }
                 }
 
-                // Goal title
-                Text(proof.goal_title)
-                    .font(AppTypography.h3)
-                    .foregroundColor(AppColors.textDark)
+                Spacer()
 
-                // Caption
-                if let caption = proof.caption {
-                    Text(caption)
-                        .font(AppTypography.body)
-                        .foregroundColor(AppColors.textMedium)
-                }
-
-                // Image placeholder
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(AppColors.sageGreen.opacity(0.3))
-                    .frame(height: 200)
-                    .overlay(
-                        Image(systemName: "photo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 50, height: 50)
-                            .foregroundColor(AppColors.sand)
-                    )
-
-                // Stats
-                HStack {
-                    Image(systemName: "flame.fill")
-                        .foregroundColor(AppColors.sand)
-                    Text("Streak continues!")
-                        .font(AppTypography.caption)
-                        .foregroundColor(AppColors.textMedium)
+                if proof.verified {
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundColor(AppColors.primaryGreen)
                 }
             }
+
+            // Goal title
+            Text(proof.goal_title)
+                .font(AppTypography.h3)
+                .foregroundColor(AppColors.textDark)
+
+            // Caption
+            if let caption = proof.caption {
+                Text(caption)
+                    .font(AppTypography.body)
+                    .foregroundColor(AppColors.textMedium)
+            }
+
+            // Image placeholder
+            RoundedRectangle(cornerRadius: 12)
+                .fill(AppColors.sageGreen.opacity(0.3))
+                .frame(height: 200)
+                .overlay(
+                    Image(systemName: "photo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(AppColors.sand)
+                )
+
+            // Divider between posts
+            Divider()
+                .padding(.top, AppSpacing.sm)
         }
+        .padding(.vertical, AppSpacing.md)
     }
 
     private func timeAgo(from date: Date) -> String {

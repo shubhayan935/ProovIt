@@ -9,24 +9,47 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
+    @State private var showCreateGoal = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Custom Header
-                AppHeader()
+                // Header with Add button
+                HStack(spacing: AppSpacing.md) {
+                    // App Icon + Name
+                    HStack(spacing: AppSpacing.sm) {
+                        Image("AppLogo")
+                            .resizable()
+                            .frame(width: 44, height: 44)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                        Text("ProovIt")
+                            .font(AppTypography.h3)
+                            .foregroundColor(AppColors.textDark)
+                    }
+
+                    Spacer()
+
+                    // Add Goal button
+                    Button(action: { showCreateGoal = true }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(AppColors.cardWhite)
+                            .frame(width: 36, height: 36)
+                            .background(AppColors.primaryGreen)
+                            .clipShape(Circle())
+                    }
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.vertical, AppSpacing.md)
 
                 ScrollView {
                     VStack(spacing: AppSpacing.xl) {
                         // Title Section
                         VStack(alignment: .leading, spacing: AppSpacing.sm) {
                             Text("Today's Goals")
-                                .font(AppTypography.h1)
+                                .font(AppTypography.h2)
                                 .foregroundColor(AppColors.textDark)
-
-                            Text("Tap a goal to log your proof")
-                                .font(AppTypography.body)
-                                .foregroundColor(AppColors.textMedium)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, AppSpacing.lg)
@@ -74,6 +97,15 @@ struct HomeView: View {
             }
             .background(AppColors.background.ignoresSafeArea())
             .navigationBarHidden(true)
+            .sheet(isPresented: $showCreateGoal) {
+                CreateGoalView()
+                    .onDisappear {
+                        // Refresh goals after creating
+                        Task {
+                            await vm.loadGoals()
+                        }
+                    }
+            }
         }
     }
 }

@@ -20,7 +20,11 @@ struct AuthView: View {
             AppColors.background
                 .ignoresSafeArea()
 
-            if vm.showOTPScreen {
+            if vm.showOnboarding {
+                OnboardingView(phoneNumber: vm.formattedPhoneNumber) {
+                    vm.completeOnboarding()
+                }
+            } else if vm.showOTPScreen {
                 OTPVerificationView(vm: vm)
             } else {
                 PhoneNumberEntryView(vm: vm)
@@ -187,10 +191,10 @@ struct OTPVerificationView: View {
                         .multilineTextAlignment(.trailing)
                         .focused($isOTPFieldFocused)
                         .onChange(of: vm.otp) { _, newValue in
-                            // Limit to 3 digits
+                            // Limit to 6 digits
                             let filtered = newValue.filter { $0.isNumber }
-                            if filtered.count > 3 {
-                                vm.otp = String(filtered.prefix(3))
+                            if filtered.count > 6 {
+                                vm.otp = String(filtered.prefix(6))
                             } else {
                                 vm.otp = filtered
                             }
@@ -207,7 +211,7 @@ struct OTPVerificationView: View {
                 .frame(height: 24)
 
             // Info text
-            Text("Enter the 3-digit code we sent to your phone.")
+            Text("Enter the 6-digit code we sent to your phone.")
                 .font(AppTypography.body)
                 .foregroundColor(AppColors.textMedium)
                 .multilineTextAlignment(.leading)
@@ -243,8 +247,8 @@ struct OTPVerificationView: View {
                             .background(AppColors.primaryGreen)
                             .cornerRadius(16)
                     }
-                    .disabled(vm.otp.count != 3)
-                    .opacity(vm.otp.count == 3 ? 1.0 : 0.5)
+                    .disabled(vm.otp.count != 6)
+                    .opacity(vm.otp.count == 6 ? 1.0 : 0.5)
                 }
             }
             .padding(.horizontal, AppSpacing.xl)

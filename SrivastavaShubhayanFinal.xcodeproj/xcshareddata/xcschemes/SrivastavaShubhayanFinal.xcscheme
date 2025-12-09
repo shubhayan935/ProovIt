@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1640"
+   version = "1.7">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B446BCE92EE6CF9D00A9FB98"
+               BuildableName = "SrivastavaShubhayanFinal.app"
+               BlueprintName = "SrivastavaShubhayanFinal"
+               ReferencedContainer = "container:SrivastavaShubhayanFinal.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B446BCFB2EE6CF9F00A9FB98"
+               BuildableName = "SrivastavaShubhayanFinalTests.xctest"
+               BlueprintName = "SrivastavaShubhayanFinalTests"
+               ReferencedContainer = "container:SrivastavaShubhayanFinal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B446BD052EE6CF9F00A9FB98"
+               BuildableName = "SrivastavaShubhayanFinalUITests.xctest"
+               BlueprintName = "SrivastavaShubhayanFinalUITests"
+               ReferencedContainer = "container:SrivastavaShubhayanFinal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B446BCE92EE6CF9D00A9FB98"
+            BuildableName = "SrivastavaShubhayanFinal.app"
+            BlueprintName = "SrivastavaShubhayanFinal"
+            ReferencedContainer = "container:SrivastavaShubhayanFinal.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "SUPABASE_URL"
+            value = "https://ddazlvsumvlhylrcxrml.supabase.co"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "SUPABASE_ANON_KEY"
+            value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYXpsdnN1bXZsaHlscmN4cm1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyNjQ4MDQsImV4cCI6MjA4MDg0MDgwNH0.Cm2DNkc_jH2nuRlId3_BjdPZwnBZ5P5yXOVJWk6Q2nY"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "TWILIO_ACCOUNT_SID"
+            value = "VAc67e7571363ab216b8c36ec50e3b6512"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "TWILIO_AUTH_TOKEN"
+            value = "f6aa202eba8633f3d410151268bd5c8c"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "TWILIO_PHONE_NUMBER"
+            value = "2139104667"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B446BCE92EE6CF9D00A9FB98"
+            BuildableName = "SrivastavaShubhayanFinal.app"
+            BlueprintName = "SrivastavaShubhayanFinal"
+            ReferencedContainer = "container:SrivastavaShubhayanFinal.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>

@@ -2,7 +2,7 @@
 //  AuthViewModel.swift
 //  SrivastavaShubhayanFinal
 //
-//  Authentication View Model - Phone OTP
+//  Authentication View Model - Phone OTP with Twilio and Onboarding
 //
 
 import Foundation
@@ -14,13 +14,15 @@ final class AuthViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoading = false
     @Published var showOTPScreen = false
+    @Published var showOnboarding = false
 
     private let appVM: AppViewModel
-    private let devPhoneNumber = "2139104667"
-    private let devOTP = "123"
+    private let twilioService = TwilioService.shared
+    private let profilesRepo: ProfilesRepository
 
-    init(appVM: AppViewModel) {
+    init(appVM: AppViewModel, profilesRepo: ProfilesRepository = SupabaseProfilesRepository()) {
         self.appVM = appVM
+        self.profilesRepo = profilesRepo
     }
 
     var formattedPhoneNumber: String {
@@ -46,26 +48,13 @@ final class AuthViewModel: ObservableObject {
             return
         }
 
-        // Simulate SMS send
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-
-        // Always succeed for dev number
-        if cleaned == devPhoneNumber {
-            showOTPScreen = true
-        } else {
-            // TODO: Integrate with Twilio here
-            /*
-            // Send OTP via Twilio
-            let result = await TwilioService.sendOTP(to: phoneNumber)
-            if result.success {
+        do {
+            let success = try await twilioService.sendOTP(to: phoneNumber)
+            if success {
                 showOTPScreen = true
-            } else {
-                errorMessage = "Failed to send SMS. Please try again."
             }
-            */
-
-            // For now, just show OTP screen for any number
-            showOTPScreen = true
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 
@@ -74,38 +63,38 @@ final class AuthViewModel: ObservableObject {
         isLoading = true
         defer { isLoading = false }
 
-        guard otp.count == 3 else {
-            errorMessage = "Please enter the 3-digit code"
+        guard otp.count == 6 else {
+            errorMessage = "Please enter the 6-digit code"
             return
         }
 
-        // Simulate verification
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-
-        let cleaned = phoneNumber.filter { $0.isNumber }
-
-        // Check dev credentials
-        if cleaned == devPhoneNumber && otp == devOTP {
-            appVM.loginMock()
+        // Verify OTP with Twilio
+        guard twilioService.verifyOTP(phoneNumber: phoneNumber, otp: otp) else {
+            errorMessage = "Invalid verification code"
             return
         }
 
-        // TODO: Verify OTP with Twilio
-        /*
-        let result = await TwilioService.verifyOTP(phoneNumber: phoneNumber, code: otp)
-        if result.success {
-            await appVM.checkSession()
-        } else {
-            errorMessage = "Invalid code. Please try again."
-        }
-        */
+        // Clear OTP from storage
+        twilioService.clearOTP(phoneNumber: phoneNumber)
 
-        // For now, accept any 3-digit code
-        if otp.count == 3 {
-            appVM.loginMock()
-        } else {
-            errorMessage = "Invalid code. Please try again."
+        // Check if profile exists
+        do {
+            let profile = try await profilesRepo.getProfile(by: formattedPhoneNumber)
+
+            if profile == nil {
+                // New user - show onboarding
+                showOnboarding = true
+            } else {
+                // Existing user - authenticate
+                appVM.loginMock()
+            }
+        } catch {
+            errorMessage = error.localizedDescription
         }
+    }
+
+    func completeOnboarding() {
+        appVM.loginMock()
     }
 
     func backToPhoneEntry() {

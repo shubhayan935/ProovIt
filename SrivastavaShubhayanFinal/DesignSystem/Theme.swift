@@ -15,7 +15,7 @@ struct AppColors {
 
     static let textDark     = Color(hex: "#2C2C28")
     static let textMedium   = Color(hex: "#6A6A5B")
-    static let cardWhite    = Color.white
+    static let cardWhite    = Color(hex: "#FAFAFA")
     static let background   = beige
 }
 

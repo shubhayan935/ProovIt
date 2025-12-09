@@ -10,10 +10,15 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject private var appVM: AppViewModel
 
-    @State private var username = "demo_user"
+    @State private var phoneNumber = "+1 213-910-4667"
+    @State private var username: String?
     @State private var activeStreaks = 3
     @State private var totalGoals = 5
     @State private var longestStreak = 12
+
+    var displayName: String {
+        username ?? phoneNumber
+    }
 
     var body: some View {
         NavigationStack {
@@ -31,7 +36,7 @@ struct ProfileView: View {
                                 .foregroundColor(AppColors.primaryGreen)
 
                             VStack(spacing: AppSpacing.sm) {
-                                Text(username)
+                                Text(displayName)
                                     .font(AppTypography.h1)
                                     .foregroundColor(AppColors.textDark)
 

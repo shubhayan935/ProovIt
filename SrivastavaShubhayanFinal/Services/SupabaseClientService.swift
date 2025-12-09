@@ -27,7 +27,16 @@ final class SupabaseClientService {
             fatalError("SUPABASE_URL or SUPABASE_ANON_KEY not configured in Xcode scheme environment variables")
         }
 
-        self.client = SupabaseClient(supabaseURL: url, supabaseKey: key)
+        // Configure auth options to suppress session warning (we use Twilio, not Supabase Auth)
+        self.client = SupabaseClient(
+            supabaseURL: url,
+            supabaseKey: key,
+            options: .init(
+                auth: .init(
+                    emitLocalSessionAsInitialSession: true
+                )
+            )
+        )
 
         print("✅ SupabaseClient initialized with URL: \(url.absoluteString)")
     }

@@ -9,12 +9,37 @@ import SwiftUI
 
 struct SocialFeedView: View {
     @StateObject private var vm = FeedViewModel()
+    @State private var showUserSearch = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Custom Header
-                AppHeader()
+                // Custom Header with Search
+                HStack(spacing: AppSpacing.md) {
+                    HStack(spacing: AppSpacing.sm) {
+                        Image("AppLogo")
+                            .resizable()
+                            .frame(width: 44, height: 44)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                        Text("ProovIt")
+                            .font(AppTypography.h3)
+                            .foregroundColor(AppColors.textDark)
+                    }
+
+                    Spacer()
+
+                    Button(action: { showUserSearch = true }) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(AppColors.cardWhite)
+                            .frame(width: 36, height: 36)
+                            .background(AppColors.primaryGreen)
+                            .clipShape(Circle())
+                    }
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.vertical, AppSpacing.md)
 
                 if vm.isLoading {
                     Spacer()
@@ -62,6 +87,9 @@ struct SocialFeedView: View {
             }
             .background(AppColors.background.ignoresSafeArea())
             .navigationBarHidden(true)
+            .sheet(isPresented: $showUserSearch) {
+                UserSearchView()
+            }
         }
     }
 }

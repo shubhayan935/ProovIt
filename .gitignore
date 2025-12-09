@@ -93,6 +93,7 @@ iOSInjectionProject/
 .env
 .env.*
 !.env.example
+SrivastavaShubhayanFinal.xcodeproj/xcshareddata/xcschemes/SrivastavaShubhayanFinal.xcscheme
 
 # macOS
 .DS_Store

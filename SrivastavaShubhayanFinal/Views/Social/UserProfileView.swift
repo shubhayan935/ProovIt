@@ -1,29 +1,20 @@
 //
-//  ProfileView.swift
+//  UserProfileView.swift
 //  SrivastavaShubhayanFinal
 //
-//  Profile Screen
+//  View other users' profiles
 //
 
 import SwiftUI
 
-struct ProfileView: View {
-    @EnvironmentObject private var appVM: AppViewModel
-    @StateObject private var vm = ProfileViewModel()
-
-    var greeting: String {
-        if let name = UserSession.shared.currentProfile?.full_name {
-            return "Hi, \(name)"
-        }
-        return "Hi there"
-    }
+struct UserProfileView: View {
+    @Environment(\.dismiss) private var dismiss
+    let user: Profile
+    @StateObject private var vm = UserProfileViewModel()
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Custom Header
-                AppHeader()
-
                 ScrollView {
                     VStack(spacing: AppSpacing.xl) {
                         // Profile header
@@ -34,31 +25,16 @@ struct ProfileView: View {
                                 .foregroundColor(AppColors.primaryGreen)
 
                             VStack(spacing: AppSpacing.sm) {
-                                Text(greeting)
-                                    .font(AppTypography.h1)
-                                    .foregroundColor(AppColors.textDark)
+                                if let fullName = user.full_name {
+                                    Text(fullName)
+                                        .font(AppTypography.h1)
+                                        .foregroundColor(AppColors.textDark)
+                                }
 
-                                HStack(spacing: AppSpacing.md) {
-                                    HStack(spacing: 4) {
-                                        Text("\(vm.followersCount)")
-                                            .font(AppTypography.body.weight(.semibold))
-                                            .foregroundColor(AppColors.textDark)
-                                        Text("followers")
-                                            .font(AppTypography.body)
-                                            .foregroundColor(AppColors.textMedium)
-                                    }
-
-                                    Text("•")
+                                if let username = user.username {
+                                    Text("@\(username)")
+                                        .font(AppTypography.body)
                                         .foregroundColor(AppColors.textMedium)
-
-                                    HStack(spacing: 4) {
-                                        Text("\(vm.followingCount)")
-                                            .font(AppTypography.body.weight(.semibold))
-                                            .foregroundColor(AppColors.textDark)
-                                        Text("following")
-                                            .font(AppTypography.body)
-                                            .foregroundColor(AppColors.textMedium)
-                                    }
                                 }
 
                                 Text("Building habits, one proof at a time")
@@ -100,20 +76,22 @@ struct ProfileView: View {
                         }
                         .padding(.horizontal, AppSpacing.lg)
 
-                        // Logout button
+                        // Follow/Unfollow button
                         Button {
-                            appVM.logout()
+                            Task {
+                                await vm.toggleFollow(user: user)
+                            }
                         } label: {
-                            Text("Log Out")
+                            Text(vm.isFollowing ? "Unfollow" : "Follow")
                                 .font(AppTypography.body.weight(.semibold))
-                                .foregroundColor(.red)
+                                .foregroundColor(vm.isFollowing ? AppColors.textDark : AppColors.cardWhite)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, AppSpacing.lg)
-                                .background(AppColors.cardWhite)
+                                .background(vm.isFollowing ? AppColors.cardWhite : AppColors.primaryGreen)
                                 .cornerRadius(20)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.red.opacity(0.3), lineWidth: 1.5)
+                                        .stroke(vm.isFollowing ? AppColors.textMedium.opacity(0.3) : Color.clear, lineWidth: 1.5)
                                 )
                         }
                         .padding(.horizontal, AppSpacing.lg)
@@ -122,31 +100,18 @@ struct ProfileView: View {
                 }
             }
             .background(AppColors.background.ignoresSafeArea())
-            .navigationBarHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(AppColors.primaryGreen)
+                }
+            }
+            .task {
+                await vm.loadProfile(userId: user.id)
+            }
         }
-    }
-}
-
-struct StatItem: View {
-    let icon: String
-    let value: String
-    let label: String
-
-    var body: some View {
-        VStack(spacing: AppSpacing.sm) {
-            Image(systemName: icon)
-                .foregroundColor(AppColors.primaryGreen)
-                .font(.system(size: 24))
-
-            Text(value)
-                .font(AppTypography.h2)
-                .foregroundColor(AppColors.textDark)
-
-            Text(label)
-                .font(AppTypography.caption)
-                .foregroundColor(AppColors.textMedium)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
     }
 }

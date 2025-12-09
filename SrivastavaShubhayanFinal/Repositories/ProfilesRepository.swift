@@ -11,6 +11,7 @@ protocol ProfilesRepository {
     func getProfile(by phoneNumber: String) async throws -> Profile?
     func createProfile(phoneNumber: String, username: String, fullName: String) async throws -> Profile
     func updateProfile(id: UUID, username: String?, fullName: String?) async throws -> Profile
+    func searchProfiles(query: String) async throws -> [Profile]
 }
 
 final class SupabaseProfilesRepository: ProfilesRepository {
@@ -75,5 +76,17 @@ final class SupabaseProfilesRepository: ProfilesRepository {
                          userInfo: [NSLocalizedDescriptionKey: "No profile updated"])
         }
         return profile
+    }
+
+    func searchProfiles(query: String) async throws -> [Profile] {
+        let profiles: [Profile] = try await client
+            .from("profiles")
+            .select()
+            .or("full_name.ilike.%\(query)%,username.ilike.%\(query)%,phone_number.ilike.%\(query)%")
+            .limit(20)
+            .execute()
+            .value
+
+        return profiles
     }
 }

@@ -54,6 +54,7 @@ final class AuthViewModel: ObservableObject {
                 showOTPScreen = true
             }
         } catch {
+            print("❌ AuthViewModel: Failed to send OTP - \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }
@@ -68,17 +69,16 @@ final class AuthViewModel: ObservableObject {
             return
         }
 
-        // Verify OTP with Twilio
-        guard twilioService.verifyOTP(phoneNumber: phoneNumber, otp: otp) else {
-            errorMessage = "Invalid verification code"
-            return
-        }
-
-        // Clear OTP from storage
-        twilioService.clearOTP(phoneNumber: phoneNumber)
-
-        // Check if profile exists
+        // Verify OTP with Twilio Verify
         do {
+            let isValid = try await twilioService.verifyOTP(phoneNumber: phoneNumber, otp: otp)
+
+            guard isValid else {
+                errorMessage = "Invalid verification code"
+                return
+            }
+
+            // Check if profile exists
             let profile = try await profilesRepo.getProfile(by: formattedPhoneNumber)
 
             if let existingProfile = profile {
@@ -90,6 +90,7 @@ final class AuthViewModel: ObservableObject {
                 showOnboarding = true
             }
         } catch {
+            print("❌ AuthViewModel: Failed to verify OTP - \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }

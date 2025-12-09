@@ -12,6 +12,9 @@ protocol FeedRepository {
     func followUser(_ targetUserId: UUID, currentUserId: UUID) async throws -> Bool
     func unfollowUser(_ targetUserId: UUID, currentUserId: UUID) async throws -> Bool
     func getFollowing(for userId: UUID) async throws -> [UUID]
+    func getFollowers(for userId: UUID) async throws -> [UUID]
+    func getFollowersCount(for userId: UUID) async throws -> Int
+    func getFollowingCount(for userId: UUID) async throws -> Int
 }
 
 final class SupabaseFeedRepository: FeedRepository {
@@ -79,5 +82,30 @@ final class SupabaseFeedRepository: FeedRepository {
             .value
 
         return result.map { $0.following_id }
+    }
+
+    func getFollowers(for userId: UUID) async throws -> [UUID] {
+        struct Follower: Decodable {
+            let follower_id: UUID
+        }
+
+        let result: [Follower] = try await client
+            .from("friendships")
+            .select("follower_id")
+            .eq("following_id", value: userId.uuidString)
+            .execute()
+            .value
+
+        return result.map { $0.follower_id }
+    }
+
+    func getFollowersCount(for userId: UUID) async throws -> Int {
+        let followers = try await getFollowers(for: userId)
+        return followers.count
+    }
+
+    func getFollowingCount(for userId: UUID) async throws -> Int {
+        let following = try await getFollowing(for: userId)
+        return following.count
     }
 }

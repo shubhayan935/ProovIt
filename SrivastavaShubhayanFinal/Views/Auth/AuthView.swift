@@ -38,11 +38,9 @@ struct PhoneNumberEntryView: View {
         VStack(spacing: 0) {
             // Header with app icon
             HStack(spacing: AppSpacing.md) {
-                Image(systemName: "leaf.circle.fill")
+                Image("AppLogo")
                     .resizable()
                     .frame(width: 56, height: 56)
-                    .foregroundColor(AppColors.primaryGreen)
-                    .background(AppColors.sand.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 Text("Login")
@@ -52,7 +50,7 @@ struct PhoneNumberEntryView: View {
                 Spacer()
             }
             .padding(.horizontal, AppSpacing.xl)
-            .padding(.top, 60)
+            .padding(.top, 22)
 
             Spacer()
                 .frame(height: 40)
@@ -72,7 +70,6 @@ struct PhoneNumberEntryView: View {
                     .multilineTextAlignment(.trailing)
                     .focused($isPhoneFieldFocused)
                     .onChange(of: vm.phoneNumber) { _, newValue in
-                        // Limit to 10 digits
                         let filtered = newValue.filter { $0.isNumber }
                         if filtered.count > 10 {
                             vm.phoneNumber = String(filtered.prefix(10))
@@ -90,7 +87,6 @@ struct PhoneNumberEntryView: View {
             Spacer()
                 .frame(height: 24)
 
-            // Info text
             Text("Sign up with just your number! We will send you an SMS code in the next step.")
                 .font(AppTypography.body)
                 .foregroundColor(AppColors.textMedium)
@@ -99,7 +95,6 @@ struct PhoneNumberEntryView: View {
 
             Spacer()
 
-            // Error message
             if let error = vm.errorMessage {
                 Text(error)
                     .font(AppTypography.caption)
@@ -108,7 +103,6 @@ struct PhoneNumberEntryView: View {
                     .padding(.bottom, AppSpacing.md)
             }
 
-            // Continue button
             VStack(spacing: 0) {
                 if vm.isLoading {
                     ProgressView()
@@ -147,19 +141,9 @@ struct OTPVerificationView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header with back button
+            // Header
             HStack(spacing: AppSpacing.md) {
-                Button(action: { vm.backToPhoneEntry() }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(AppColors.textDark)
-                        .frame(width: 44, height: 44)
-                        .background(AppColors.cardWhite)
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-                }
-
-                Image(systemName: "leaf.circle.fill")
+                Image("AppLogo")
                     .resizable()
                     .frame(width: 56, height: 56)
                     .foregroundColor(AppColors.primaryGreen)
@@ -173,39 +157,50 @@ struct OTPVerificationView: View {
                 Spacer()
             }
             .padding(.horizontal, AppSpacing.xl)
-            .padding(.top, 60)
+            .padding(.top, 22)
 
             Spacer()
                 .frame(height: 40)
 
-            // OTP field
+            // OTP field with back button
             HStack {
-                Text("Verification code")
-                    .font(AppTypography.body)
-                    .foregroundColor(AppColors.textDark)
-
-                Spacer()
-
-                TextField("", text: $vm.otp)
-                    .keyboardType(.numberPad)
-                    .font(AppTypography.body)
-                    .foregroundColor(AppColors.textMedium)
-                    .multilineTextAlignment(.trailing)
-                    .focused($isOTPFieldFocused)
-                    .onChange(of: vm.otp) { _, newValue in
-                        // Limit to 3 digits
-                        let filtered = newValue.filter { $0.isNumber }
-                        if filtered.count > 3 {
-                            vm.otp = String(filtered.prefix(3))
-                        } else {
-                            vm.otp = filtered
+                Button(action: { vm.backToPhoneEntry() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(AppColors.textDark)
+                        .frame(width: 22, height: 22)
+                    //                    .background(AppColors.cardWhite)
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+                }
+                HStack {
+                    Text("Verification code")
+                        .font(AppTypography.body)
+                        .foregroundColor(AppColors.textDark)
+                    
+                    Spacer()
+                    
+                    TextField("", text: $vm.otp)
+                        .keyboardType(.numberPad)
+                        .font(AppTypography.body)
+                        .foregroundColor(AppColors.textMedium)
+                        .multilineTextAlignment(.trailing)
+                        .focused($isOTPFieldFocused)
+                        .onChange(of: vm.otp) { _, newValue in
+                            // Limit to 3 digits
+                            let filtered = newValue.filter { $0.isNumber }
+                            if filtered.count > 3 {
+                                vm.otp = String(filtered.prefix(3))
+                            } else {
+                                vm.otp = filtered
+                            }
                         }
-                    }
+                }
+                .padding()
+                .background(AppColors.cardWhite)
+                .cornerRadius(16)
+                .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 2)
             }
-            .padding()
-            .background(AppColors.cardWhite)
-            .cornerRadius(16)
-            .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 2)
             .padding(.horizontal, AppSpacing.xl)
 
             Spacer()

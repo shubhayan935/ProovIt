@@ -29,18 +29,10 @@ struct AppHeader: View {
 
             // App Icon + Name
             HStack(spacing: AppSpacing.sm) {
-                if let logo = UIImage(named: "AppLogo") {
-                    Image(uiImage: logo)
-                        .resizable()
-                        .frame(width: 32, height: 32)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else {
-                    // Fallback to SF Symbol
-                    Image(systemName: "leaf.circle.fill")
-                        .resizable()
-                        .frame(width: 32, height: 32)
-                        .foregroundColor(AppColors.primaryGreen)
-                }
+                Image("AppLogo")
+                    .resizable()
+                    .frame(width: 32, height: 32)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 Text("ProovIt")
                     .font(AppTypography.h3)
@@ -57,15 +49,5 @@ struct AppHeader: View {
         }
         .padding(.horizontal, AppSpacing.lg)
         .padding(.vertical, AppSpacing.md)
-    }
-}
-
-// Fallback for when AppIcon image isn't available yet
-extension AppHeader {
-    var iconFallback: some View {
-        Image(systemName: "leaf.circle.fill")
-            .resizable()
-            .frame(width: 32, height: 32)
-            .foregroundColor(AppColors.primaryGreen)
     }
 }

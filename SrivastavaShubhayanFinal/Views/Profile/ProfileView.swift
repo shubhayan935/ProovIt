@@ -103,10 +103,9 @@ struct ProfileView: View {
 
                             AppCard {
                                 HStack {
-                                    Image(systemName: "leaf.fill")
+                                    Image("AppLogo")
                                         .resizable()
                                         .frame(width: 30, height: 30)
-                                        .foregroundColor(AppColors.primaryGreen)
 
                                     VStack(alignment: .leading) {
                                         Text("Getting Started")

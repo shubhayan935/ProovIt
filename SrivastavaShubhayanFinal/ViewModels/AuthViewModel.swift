@@ -54,7 +54,7 @@ final class AuthViewModel: ObservableObject {
                 showOTPScreen = true
             }
         } catch {
-            print("❌ AuthViewModel: Failed to send OTP - \(error.localizedDescription)")
+            
             errorMessage = error.localizedDescription
         }
     }
@@ -90,7 +90,7 @@ final class AuthViewModel: ObservableObject {
                 showOnboarding = true
             }
         } catch {
-            print("❌ AuthViewModel: Failed to verify OTP - \(error.localizedDescription)")
+            
             errorMessage = error.localizedDescription
         }
     }

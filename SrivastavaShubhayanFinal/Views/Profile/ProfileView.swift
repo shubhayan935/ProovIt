@@ -100,6 +100,8 @@ struct ProfileView: View {
                         }
                         .padding(.horizontal, AppSpacing.lg)
 
+                        // Spacer()
+
                         // Logout button
                         Button {
                             appVM.logout()

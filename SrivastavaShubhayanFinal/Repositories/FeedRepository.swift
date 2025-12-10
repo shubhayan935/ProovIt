@@ -24,16 +24,15 @@ final class SupabaseFeedRepository: FeedRepository {
         // Get list of users current user follows
         let following = try await getFollowing(for: userId)
 
-        // If not following anyone, return empty feed
-        guard !following.isEmpty else {
-            return []
-        }
+        // Include current user + followed users
+        var userIds = following.map { $0.uuidString }
+        userIds.append(userId.uuidString)
 
-        // Fetch proofs from followed users
+        // Fetch proofs from followed users AND current user
         let proofs: [FeedProof] = try await client
             .from("proofs_feed")
             .select()
-            .in("user_id", values: following.map { $0.uuidString })
+            .in("user_id", values: userIds)
             .order("created_at", ascending: false)
             .limit(50)
             .execute()

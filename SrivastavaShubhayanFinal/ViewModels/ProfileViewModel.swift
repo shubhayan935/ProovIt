@@ -32,7 +32,7 @@ final class ProfileViewModel: ObservableObject {
         defer { isLoading = false }
 
         guard let userId = UserSession.shared.userId else {
-            print("No user logged in")
+            
             return
         }
 
@@ -65,7 +65,7 @@ final class ProfileViewModel: ObservableObject {
             followingCount = try await feedRepo.getFollowingCount(for: userId)
 
         } catch {
-            print("Error loading profile stats: \(error)")
+            print("Failed to load profile stats: \(error.localizedDescription)")
         }
     }
 }

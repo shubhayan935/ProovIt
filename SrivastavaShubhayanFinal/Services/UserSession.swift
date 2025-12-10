@@ -40,8 +40,6 @@ final class UserSession: ObservableObject {
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
 
-    // MARK: - Persistence
-
     private func saveToUserDefaults() {
         guard let profile = currentProfile else {
             UserDefaults.standard.removeObject(forKey: userDefaultsKey)
@@ -54,7 +52,7 @@ final class UserSession: ObservableObject {
             let data = try encoder.encode(profile)
             UserDefaults.standard.set(data, forKey: userDefaultsKey)
         } catch {
-            print("Failed to save profile to UserDefaults: \(error)")
+            print("Failed to save profile to UserDefaults: \(error.localizedDescription)")
         }
     }
 
@@ -69,7 +67,7 @@ final class UserSession: ObservableObject {
             let profile = try decoder.decode(Profile.self, from: data)
             self.currentProfile = profile
         } catch {
-            print("Failed to load profile from UserDefaults: \(error)")
+            
             // Clear corrupted data
             UserDefaults.standard.removeObject(forKey: userDefaultsKey)
         }

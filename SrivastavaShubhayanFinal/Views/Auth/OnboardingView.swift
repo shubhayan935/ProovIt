@@ -93,8 +93,6 @@ struct OnboardingView: View {
 
             // Continue button
             VStack(spacing: 0) {
-                Divider()
-
                 if vm.isLoading {
                     ProgressView()
                         .tint(AppColors.primaryGreen)

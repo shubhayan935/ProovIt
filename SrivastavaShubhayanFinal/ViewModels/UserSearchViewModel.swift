@@ -45,7 +45,7 @@ final class UserSearchViewModel: ObservableObject {
             }
         } catch {
             errorMessage = error.localizedDescription
-            print("Error searching users: \(error)")
+            
         }
     }
 
@@ -56,7 +56,7 @@ final class UserSearchViewModel: ObservableObject {
             let following = try await feedRepo.getFollowing(for: userId)
             followingIds = Set(following)
         } catch {
-            print("Error loading following: \(error)")
+            print("Failed to load following list: \(error.localizedDescription)")
         }
     }
 
@@ -73,7 +73,7 @@ final class UserSearchViewModel: ObservableObject {
             }
         } catch {
             errorMessage = error.localizedDescription
-            print("Error toggling follow: \(error)")
+            
         }
     }
 

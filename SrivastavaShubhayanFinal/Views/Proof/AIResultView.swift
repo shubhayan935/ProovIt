@@ -21,7 +21,15 @@ struct AIResultView: View {
     @State private var result: VerificationResult?
     @State private var errorMessage: String?
     @State private var didSaveProof = false
+    @State private var isSaving = false
+    @State private var uploadedImagePath: String?
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.selectedTab) private var selectedTab
+
+    private let imageUploadService = ImageUploadService.shared
+    private let aiVerificationService = AIVerificationService.shared
+    private let proofsRepo: ProofsRepository = SupabaseProofsRepository()
+    private let streaksRepo: StreaksRepository = SupabaseStreaksRepository()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,8 +40,6 @@ struct AIResultView: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(AppColors.textDark)
                         .frame(width: 44, height: 44)
-                        .background(AppColors.cardWhite)
-                        .clipShape(Circle())
                         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                 }
 
@@ -87,29 +93,13 @@ struct AIResultView: View {
                         VStack(spacing: AppSpacing.xl) {
                             // Result card
                             VStack(spacing: AppSpacing.lg) {
-                                // Icon
-                                Image(systemName: result.verified ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                    .resizable()
-                                    .frame(width: 80, height: 80)
-                                    .foregroundColor(result.verified ? AppColors.primaryGreen : .red)
-
                                 // Title
                                 Text(result.verified ? "Great job!" : "Hmm, not quite...")
-                                    .font(AppTypography.h1)
-                                    .foregroundColor(AppColors.textDark)
-
-                                // Confidence badge
-                                HStack(spacing: AppSpacing.sm) {
-                                    Image(systemName: "gauge.high")
-                                        .font(.system(size: 14))
-                                    Text("Confidence: \(Int(result.score * 100))%")
-                                        .font(AppTypography.body.weight(.medium))
-                                }
+                                    .font(AppTypography.h2)
+                                    .foregroundColor(result.verified ? AppColors.primaryGreen : AppColors.sand)
                                 .foregroundColor(AppColors.textMedium)
                                 .padding(.horizontal, AppSpacing.lg)
                                 .padding(.vertical, AppSpacing.sm)
-                                .background(AppColors.sageGreen.opacity(0.2))
-                                .cornerRadius(12)
 
                                 // Reason
                                 Text(result.reason)
@@ -124,34 +114,6 @@ struct AIResultView: View {
                             .cornerRadius(24)
                             .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 4)
                             .padding(.horizontal, AppSpacing.lg)
-
-                            // Success state
-                            if result.verified && didSaveProof {
-                                VStack(spacing: AppSpacing.md) {
-                                    HStack(spacing: AppSpacing.sm) {
-                                        Image(systemName: "flame.fill")
-                                            .foregroundColor(AppColors.sand)
-                                        Text("Streak updated!")
-                                            .font(AppTypography.h3)
-                                            .foregroundColor(AppColors.textDark)
-                                    }
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(AppColors.primaryGreen.opacity(0.1))
-                                    .cornerRadius(16)
-
-                                    Button("Done") {
-                                        dismiss()
-                                    }
-                                    .font(AppTypography.body.weight(.semibold))
-                                    .foregroundColor(AppColors.cardWhite)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, AppSpacing.lg)
-                                    .background(AppColors.primaryGreen)
-                                    .cornerRadius(20)
-                                }
-                                .padding(.horizontal, AppSpacing.lg)
-                            }
                         }
                     } else if let error = errorMessage {
                         VStack(spacing: AppSpacing.xl) {
@@ -185,27 +147,31 @@ struct AIResultView: View {
             // Bottom button
             if let result = result, result.verified, !didSaveProof {
                 VStack(spacing: 0) {
-                    Divider()
 
                     Button {
                         saveProof()
                     } label: {
-                        Text("Add to Streak")
-                            .font(AppTypography.body.weight(.semibold))
-                            .foregroundColor(AppColors.cardWhite)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, AppSpacing.lg)
-                            .background(AppColors.primaryGreen)
-                            .cornerRadius(20)
+                        HStack {
+                            if isSaving {
+                                ProgressView()
+                                    .tint(AppColors.cardWhite)
+                            }
+                            Text(isSaving ? "Saving..." : "Add to Streak")
+                                .font(AppTypography.body.weight(.semibold))
+                        }
+                        .foregroundColor(AppColors.cardWhite)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AppSpacing.lg)
+                        .background(AppColors.primaryGreen)
+                        .cornerRadius(20)
                     }
+                    .disabled(isSaving)
                     .padding(.horizontal, AppSpacing.lg)
                     .padding(.vertical, AppSpacing.lg)
                     .background(AppColors.background)
                 }
             } else if let result = result, !result.verified {
                 VStack(spacing: 0) {
-                    Divider()
-
                     Button {
                         dismiss()
                     } label: {
@@ -223,8 +189,6 @@ struct AIResultView: View {
                 }
             } else if errorMessage != nil {
                 VStack(spacing: 0) {
-                    Divider()
-
                     Button {
                         dismiss()
                     } label: {
@@ -251,26 +215,98 @@ struct AIResultView: View {
 
     private func runVerification() async {
         isLoading = true
+        defer { isLoading = false }
 
-        // Simulate API call
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        guard let userId = UserSession.shared.userId else {
+            errorMessage = "User not logged in"
+            return
+        }
 
-        // Mock result - in real app, this would call the Edge Function
-        let verified = Bool.random()
-        result = VerificationResult(
-            verified: verified,
-            score: verified ? 0.85 : 0.45,
-            reason: verified
-                ? "The image shows clear evidence of completing the goal '\(goal.title)'. Well done!"
-                : "I couldn't clearly see evidence of '\(goal.title)' in this image. Try taking a clearer photo that shows the activity."
-        )
+        do {
+            // Step 1: Upload image to Supabase Storage
+            
+            let imagePath = try await imageUploadService.uploadProofImage(
+                imageData: imageData,
+                userId: userId,
+                goalId: goal.id
+            )
+            uploadedImagePath = imagePath
+            
 
-        isLoading = false
+            // Step 2: Verify with AI
+            
+            let aiResult = try await aiVerificationService.verifyProof(
+                imagePath: imagePath,
+                goalTitle: goal.title
+            )
+
+            // Convert to VerificationResult
+            result = VerificationResult(
+                verified: aiResult.verified,
+                score: aiResult.score,
+                reason: aiResult.reason
+            )
+
+            
+
+        } catch {
+            print("AI verification failed: \(error.localizedDescription)")
+            errorMessage = "Failed to verify proof: \(error.localizedDescription)"
+
+            // Clean up uploaded image if verification failed
+            if let imagePath = uploadedImagePath {
+                try? await imageUploadService.deleteImage(at: imagePath)
+            }
+        }
     }
 
     private func saveProof() {
-        // TODO: Save to database and update streak
-        // For now, just mark as saved
-        didSaveProof = true
+        guard let userId = UserSession.shared.userId,
+              let imagePath = uploadedImagePath,
+              let verificationResult = result else {
+            errorMessage = "Missing required data to save proof"
+            return
+        }
+
+        isSaving = true
+
+        Task {
+            do {
+                // Step 3: Save proof to database
+                
+                let proof = try await proofsRepo.createProof(
+                    goalId: goal.id,
+                    userId: userId,
+                    imagePath: imagePath,
+                    caption: nil // Can add caption input later
+                )
+                
+
+                // Update verification status
+                _ = try await proofsRepo.updateVerification(
+                    proofId: proof.id,
+                    verified: verificationResult.verified,
+                    score: verificationResult.score
+                )
+
+                // Step 4: Update streak
+                
+                let streak = try await streaksRepo.incrementStreak(goalId: goal.id)
+                
+
+                isSaving = false
+
+                // Automatically navigate to feed and dismiss
+                await MainActor.run {
+                    selectedTab.wrappedValue = .social
+                    dismiss()
+                }
+
+            } catch {
+                print("Failed to save proof: \(error.localizedDescription)")
+                isSaving = false
+                errorMessage = "Failed to save proof: \(error.localizedDescription)"
+            }
+        }
     }
 }

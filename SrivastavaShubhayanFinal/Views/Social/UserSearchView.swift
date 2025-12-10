@@ -26,8 +26,7 @@ struct UserSearchView: View {
                             .foregroundColor(AppColors.textDark)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
-                            .submitLabel(.search)
-                            .onSubmit {
+                            .onChange(of: vm.searchText) { _, newValue in
                                 Task {
                                     await vm.searchUsers()
                                 }
@@ -50,8 +49,6 @@ struct UserSearchView: View {
                 }
                 .padding(.horizontal, AppSpacing.lg)
                 .padding(.vertical, AppSpacing.md)
-
-                Divider()
 
                 // Results
                 if vm.isLoading {
@@ -103,8 +100,6 @@ struct UserSearchView: View {
                                         selectedUser = user
                                     }
                                 )
-
-                                Divider()
                                     .padding(.leading, AppSpacing.lg)
                             }
                         }

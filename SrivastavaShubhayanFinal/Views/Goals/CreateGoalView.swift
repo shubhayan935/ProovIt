@@ -21,8 +21,6 @@ struct CreateGoalView: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(AppColors.textDark)
                         .frame(width: 44, height: 44)
-                        .background(AppColors.cardWhite)
-                        .clipShape(Circle())
                         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                 }
 
@@ -45,6 +43,7 @@ struct CreateGoalView: View {
 
                         TextField("e.g., Drink 8 glasses of water", text: $vm.title)
                             .font(AppTypography.body)
+                            .foregroundColor(AppColors.textDark)
                             .padding()
                             .background(AppColors.cardWhite)
                             .cornerRadius(16)
@@ -61,6 +60,7 @@ struct CreateGoalView: View {
 
                         TextField("Add more details...", text: $vm.description, axis: .vertical)
                             .font(AppTypography.body)
+                            .foregroundColor(AppColors.textDark)
                             .lineLimit(3...6)
                             .padding()
                             .background(AppColors.cardWhite)
@@ -103,8 +103,6 @@ struct CreateGoalView: View {
 
             // Create button
             VStack(spacing: 0) {
-                Divider()
-
                 if vm.isLoading {
                     ProgressView()
                         .tint(AppColors.primaryGreen)

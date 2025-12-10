@@ -26,14 +26,14 @@ final class HomeViewModel: ObservableObject {
         do {
             // Get current user ID from session
             guard let userId = UserSession.shared.userId else {
-                print("No user logged in")
+                
                 goals = []
                 return
             }
 
             goals = try await goalsRepo.fetchGoals(for: userId)
         } catch {
-            print("Error loading goals: \(error)")
+            print("Failed to load goals: \(error.localizedDescription)")
         }
     }
 }

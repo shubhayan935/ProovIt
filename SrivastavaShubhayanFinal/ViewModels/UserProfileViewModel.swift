@@ -62,7 +62,7 @@ final class UserProfileViewModel: ObservableObject {
             longestStreak = streaks.map { $0.longest_count }.max() ?? 0
 
         } catch {
-            print("Error loading profile stats: \(error)")
+            print("Failed to load profile stats: \(error.localizedDescription)")
         }
     }
 
@@ -73,7 +73,7 @@ final class UserProfileViewModel: ObservableObject {
             let following = try await feedRepo.getFollowing(for: currentUserId)
             isFollowing = following.contains(userId)
         } catch {
-            print("Error checking following: \(error)")
+            print("Failed to check following status: \(error.localizedDescription)")
         }
     }
 
@@ -89,7 +89,7 @@ final class UserProfileViewModel: ObservableObject {
                 isFollowing = true
             }
         } catch {
-            print("Error toggling follow: \(error)")
+            print("Failed to toggle follow status: \(error.localizedDescription)")
         }
     }
 }

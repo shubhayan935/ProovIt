@@ -27,7 +27,7 @@ final class FeedViewModel: ObservableObject {
         do {
             // Get current user ID from session
             guard let userId = UserSession.shared.userId else {
-                print("No user logged in")
+                
                 feedProofs = []
                 return
             }
@@ -35,7 +35,7 @@ final class FeedViewModel: ObservableObject {
             feedProofs = try await feedRepo.getFeed(for: userId)
         } catch {
             errorMessage = error.localizedDescription
-            print("Error loading feed: \(error)")
+            
         }
     }
 

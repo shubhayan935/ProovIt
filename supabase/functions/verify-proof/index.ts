@@ -42,12 +42,23 @@ serve(async (req) => {
 
     const imageUrl = signedData.signedUrl;
 
-    // Build prompt
-    const prompt = `The user has a habit goal: "${goalTitle}".
-You are verifying if the given image shows convincing evidence that the user is performing that habit.
-Return a short explanation about whether the image matches the habit and how confident you are.`;
+    // Build prompt for structured response
+    const prompt = `You are verifying if an image shows evidence of completing a habit goal.
 
-    // Call OpenAI vision
+Goal: "${goalTitle}"
+
+Analyze the image and determine if it provides convincing proof that the user completed this goal.
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "verified": true or false,
+  "confidence": 0.0 to 1.0,
+  "reasoning": "Brief explanation of your decision (1-2 sentences)"
+}
+
+Be strict but fair. The image should clearly show the habit being performed or completed.`;
+
+    // Call OpenAI vision with structured output
     const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -55,7 +66,7 @@ Return a short explanation about whether the image matches the habit and how con
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4-vision-preview",
+        model: "gpt-4o",
         messages: [
           {
             role: "user",
@@ -66,6 +77,7 @@ Return a short explanation about whether the image matches the habit and how con
           },
         ],
         max_tokens: 300,
+        temperature: 0.3,
       }),
     });
 
@@ -77,21 +89,35 @@ Return a short explanation about whether the image matches the habit and how con
     }
 
     const openAiJson = await openAiResponse.json();
+    let responseText = openAiJson.choices?.[0]?.message?.content ?? "{}";
 
-    // Parse the response
-    const explanation = openAiJson.choices?.[0]?.message?.content ?? "No explanation available.";
+    // Strip markdown code blocks if present (```json ... ```)
+    responseText = responseText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
 
-    // Simple heuristic: if explanation contains "yes" or "looks like", mark as verified.
-    const lower = explanation.toLowerCase();
-    const verified = lower.includes("yes") || lower.includes("appears to") || lower.includes("shows");
+    // Parse the JSON response from OpenAI
+    let aiDecision;
+    try {
+      aiDecision = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("Failed to parse AI response:", responseText);
+      // Fallback to basic heuristic if JSON parsing fails
+      const lower = responseText.toLowerCase();
+      aiDecision = {
+        verified: lower.includes("yes") || lower.includes("verified") || lower.includes("correct"),
+        confidence: 0.5,
+        reasoning: responseText || "Unable to verify the image clearly.",
+      };
+    }
 
-    const score = verified ? 0.9 : 0.3; // simple placeholder
+    const verified = aiDecision.verified === true;
+    const score = aiDecision.confidence || (verified ? 0.9 : 0.3);
+    const reason = aiDecision.reasoning || "No explanation provided.";
 
     return new Response(
       JSON.stringify({
         verified,
         score,
-        reason: explanation,
+        reason,
       }),
       {
         headers: { "Content-Type": "application/json" },

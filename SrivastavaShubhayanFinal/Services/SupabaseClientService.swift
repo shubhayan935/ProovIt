@@ -38,6 +38,6 @@ final class SupabaseClientService {
             )
         )
 
-        print("✅ SupabaseClient initialized with URL: \(url.absoluteString)")
+        
     }
 }

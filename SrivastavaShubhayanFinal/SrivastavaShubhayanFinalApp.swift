@@ -2,8 +2,6 @@
 //  SrivastavaShubhayanFinalApp.swift
 //  SrivastavaShubhayanFinal
 //
-//  Created by Shubhayan Srivastava on 12/8/25.
-//
 
 import SwiftUI
 

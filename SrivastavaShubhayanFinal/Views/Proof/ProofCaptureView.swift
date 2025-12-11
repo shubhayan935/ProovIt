@@ -83,7 +83,16 @@ struct ProofCaptureView: View {
         }
         .navigationDestination(isPresented: $navigateToResult) {
             if let imageData = selectedImageData {
-                AIResultView(goal: goal, imageData: imageData)
+                AIResultView(
+                    goal: goal,
+                    imageData: imageData,
+                    onRetry: {
+                        // Reset to step 1 when user wants to try another photo
+                        selectedImageData = nil
+                        selectedItem = nil
+                        navigateToResult = false
+                    }
+                )
             }
         }
     }
@@ -191,18 +200,18 @@ struct CaptureButtons: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: AppSpacing.md) {
-//             PhotosPicker(selection: $selectedItem, matching: .images) {
-//                 HStack(spacing: AppSpacing.sm) {
-//                     Image(systemName: "photo.on.rectangle")
-//                     Text("Choose from Library")
-//                         .font(AppTypography.body.weight(.semibold))
-//                 }
-//                 .foregroundColor(AppColors.cardWhite)
-//                 .padding(.vertical, AppSpacing.lg)
-//                 .frame(maxWidth: .infinity)
-//                 .background(AppColors.primaryGreen)
-//                 .cornerRadius(20)
-//             }
+            // PhotosPicker(selection: $selectedItem, matching: .images) {
+            //     HStack(spacing: AppSpacing.sm) {
+            //         Image(systemName: "photo.on.rectangle")
+            //         Text("Choose from Library")
+            //             .font(AppTypography.body.weight(.semibold))
+            //     }
+            //     .foregroundColor(AppColors.cardWhite)
+            //     .padding(.vertical, AppSpacing.lg)
+            //     .frame(maxWidth: .infinity)
+            //     .background(AppColors.primaryGreen)
+            //     .cornerRadius(20)
+            // }
 
             PrimaryButton(
                 title: "Take Photo",

@@ -5,9 +5,6 @@
 //  Service - Supabase Client
 //
 //  Supabase Client Service
-//  Environment variables required in Edit Scheme → Run → Environment Variables:
-//     - SUPABASE_URL: your_project_url
-//     - SUPABASE_ANON_KEY: your_anon_key
 //
 
 import Foundation

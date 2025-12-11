@@ -9,14 +9,14 @@ import SwiftUI
 
 struct AppColors {
     static let primaryGreen = Color(hex: "#3C6E47")
-    static let sageGreen    = Color(hex: "#A7C4A0")
-    static let sand         = Color(hex: "#D2B47C")
-    static let beige        = Color(hex: "#F4EEDC")
+    static let sageGreen = Color(hex: "#A7C4A0")
+    static let sand = Color(hex: "#D2B47C")
+    static let beige = Color(hex: "#F4EEDC")
 
-    static let textDark     = Color(hex: "#2C2C28")
-    static let textMedium   = Color(hex: "#6A6A5B")
-    static let cardWhite    = Color(hex: "#FAFAFA")
-    static let background   = beige
+    static let textDark = Color(hex: "#2C2C28")
+    static let textMedium = Color(hex: "#6A6A5B")
+    static let cardWhite = Color(hex: "#FAFAFA")
+    static let background = beige
 }
 
 // Hex initializer

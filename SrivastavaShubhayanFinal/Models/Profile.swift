@@ -12,5 +12,6 @@ struct Profile: Identifiable, Codable {
     let phone_number: String
     let username: String?
     let full_name: String?
+    let profile_image_url: String?
     let created_at: Date?
 }

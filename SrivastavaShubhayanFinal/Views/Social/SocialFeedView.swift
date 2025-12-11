@@ -10,6 +10,7 @@ import SwiftUI
 struct SocialFeedView: View {
     @StateObject private var vm = FeedViewModel()
     @State private var showUserSearch = false
+    @State private var showFindFriends = false
 
     var body: some View {
         NavigationStack {
@@ -28,6 +29,15 @@ struct SocialFeedView: View {
                     }
 
                     Spacer()
+
+                    Button(action: { showFindFriends = true }) {
+                        Image(systemName: "person.2.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(AppColors.cardWhite)
+                            .frame(width: 36, height: 36)
+                            .background(AppColors.sageGreen)
+                            .clipShape(Circle())
+                    }
 
                     Button(action: { showUserSearch = true }) {
                         Image(systemName: "magnifyingglass")
@@ -94,6 +104,9 @@ struct SocialFeedView: View {
             .sheet(isPresented: $showUserSearch) {
                 UserSearchView()
             }
+            .sheet(isPresented: $showFindFriends) {
+                FindFriendsView()
+            }
         }
     }
 }
@@ -101,6 +114,7 @@ struct SocialFeedView: View {
 struct FeedProofCard: View {
     let proof: FeedProof
     @State private var proofImage: UIImage?
+    @State private var profileImage: UIImage?
     @State private var isLoadingImage = true
 
     private var isCurrentUser: Bool {
@@ -112,10 +126,18 @@ struct FeedProofCard: View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
             // Header
             HStack {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .frame(width: 32, height: 32)
-                    .foregroundColor(AppColors.sand)
+                if let profileImg = profileImage {
+                    Image(uiImage: profileImg)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 32, height: 32)
+                        .clipShape(Circle())
+                } else {
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                        .foregroundColor(AppColors.sand)
+                }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(isCurrentUser ? "\(proof.username) (You)" : proof.username)
@@ -185,6 +207,21 @@ struct FeedProofCard: View {
         .padding(.vertical, AppSpacing.md)
         .task {
             await loadImage()
+            await loadProfileImage()
+        }
+    }
+
+    private func loadProfileImage() async {
+        guard let profileImageUrl = proof.profile_image_url else { return }
+        guard let publicURL = ImageUploadService.shared.getProfileImageURL(for: profileImageUrl) else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: publicURL)
+            if let image = UIImage(data: data) {
+                profileImage = image
+            }
+        } catch {
+            print("Failed to load profile image: \(error.localizedDescription)")
         }
     }
 

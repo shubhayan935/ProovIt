@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @MainActor
 final class ProfileViewModel: ObservableObject {
@@ -14,17 +15,23 @@ final class ProfileViewModel: ObservableObject {
     @Published var longestStreak = 0
     @Published var followersCount = 0
     @Published var followingCount = 0
+    @Published var profileImageUrl: String?
+    @Published var profileImage: UIImage?
     @Published var isLoading = false
 
     private let goalsRepo: GoalsRepository
     private let feedRepo: FeedRepository
+    private let profilesRepo: ProfilesRepository
     private let client = SupabaseClientService.shared.client
 
     init(goalsRepo: GoalsRepository = SupabaseGoalsRepository(),
-         feedRepo: FeedRepository = SupabaseFeedRepository()) {
+         feedRepo: FeedRepository = SupabaseFeedRepository(),
+         profilesRepo: ProfilesRepository = SupabaseProfilesRepository()) {
         self.goalsRepo = goalsRepo
         self.feedRepo = feedRepo
+        self.profilesRepo = profilesRepo
         Task { await loadStats() }
+        Task { await loadProfile() }
     }
 
     func loadStats() async {
@@ -66,6 +73,45 @@ final class ProfileViewModel: ObservableObject {
 
         } catch {
             print("Failed to load profile stats: \(error.localizedDescription)")
+        }
+    }
+
+    /// Load profile data including profile image
+    func loadProfile() async {
+        guard let userId = UserSession.shared.userId else { return }
+
+        do {
+            // Get profile from database
+            guard let phoneNumber = UserSession.shared.currentProfile?.phone_number else { return }
+            guard let profile = try await profilesRepo.getProfile(by: phoneNumber) else { return }
+
+            // Update profile image URL
+            profileImageUrl = profile.profile_image_url
+
+            // Load profile image if URL exists
+            if let imageUrl = profile.profile_image_url {
+                await loadProfileImage(path: imageUrl)
+            }
+
+        } catch {
+            print("Failed to load profile: \(error.localizedDescription)")
+        }
+    }
+
+    /// Load profile image from storage
+    private func loadProfileImage(path: String) async {
+        guard let publicURL = ImageUploadService.shared.getProfileImageURL(for: path) else {
+            print("❌ Failed to get profile image URL")
+            return
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: publicURL)
+            if let image = UIImage(data: data) {
+                profileImage = image
+            }
+        } catch {
+
         }
     }
 }

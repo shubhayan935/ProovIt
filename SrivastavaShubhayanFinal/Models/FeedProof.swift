@@ -18,4 +18,5 @@ struct FeedProof: Identifiable, Codable {
     let created_at: Date?
     let goal_title: String
     let username: String
+    let profile_image_url: String?
 }

@@ -23,7 +23,7 @@ struct UserSearchView: View {
 
                         TextField("Search users...", text: $vm.searchText)
                             .font(AppTypography.body)
-                            .foregroundColor(AppColors.textDark)
+                            .foregroundColor(AppColors.sand)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .onChange(of: vm.searchText) { _, newValue in

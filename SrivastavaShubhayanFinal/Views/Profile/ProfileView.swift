@@ -6,10 +6,13 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct ProfileView: View {
     @EnvironmentObject private var appVM: AppViewModel
     @StateObject private var vm = ProfileViewModel()
+    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var isUploadingPhoto = false
 
     var greeting: String {
         if let name = UserSession.shared.currentProfile?.full_name {
@@ -28,10 +31,42 @@ struct ProfileView: View {
                     VStack(spacing: AppSpacing.xl) {
                         // Profile header
                         VStack(spacing: AppSpacing.lg) {
-                            Image(systemName: "person.crop.circle.fill")
-                                .resizable()
-                                .frame(width: 100, height: 100)
-                                .foregroundColor(AppColors.primaryGreen)
+                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                ZStack(alignment: .bottomTrailing) {
+                                    if let profileImageUrl = vm.profileImageUrl,
+                                       let image = vm.profileImage {
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 100, height: 100)
+                                            .clipShape(Circle())
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(AppColors.primaryGreen, lineWidth: 3)
+                                            )
+                                    } else {
+                                        Image(systemName: "person.crop.circle.fill")
+                                            .resizable()
+                                            .frame(width: 100, height: 100)
+                                            .foregroundColor(AppColors.primaryGreen)
+                                    }
+
+                                    if isUploadingPhoto {
+                                        ProgressView()
+                                            .tint(AppColors.cardWhite)
+                                            .frame(width: 30, height: 30)
+                                            .background(AppColors.primaryGreen)
+                                            .clipShape(Circle())
+                                    } else {
+                                        Image(systemName: "camera.circle.fill")
+                                            .resizable()
+                                            .frame(width: 30, height: 30)
+                                            .foregroundColor(AppColors.primaryGreen)
+                                            .background(AppColors.cardWhite)
+                                            .clipShape(Circle())
+                                    }
+                                }
+                            }
 
                             VStack(spacing: AppSpacing.sm) {
                                 Text(greeting)
@@ -125,6 +160,47 @@ struct ProfileView: View {
             }
             .background(AppColors.background.ignoresSafeArea())
             .navigationBarHidden(true)
+            .onChange(of: selectedPhotoItem) { _, newItem in
+                Task {
+                    await uploadProfilePhoto(item: newItem)
+                }
+            }
+        }
+    }
+
+    /// Upload profile photo when selected
+    private func uploadProfilePhoto(item: PhotosPickerItem?) async {
+        guard let item = item else { return }
+        guard let userId = UserSession.shared.userId else { return }
+
+        isUploadingPhoto = true
+        defer { isUploadingPhoto = false }
+
+        do {
+            // Load image data
+            guard let data = try await item.loadTransferable(type: Data.self) else {
+                return
+            }
+
+            // Upload to Supabase Storage
+            let imagePath = try await ImageUploadService.shared.uploadProfileImage(
+                imageData: data,
+                userId: userId
+            )
+
+            // Update profile in database
+            _ = try await SupabaseProfilesRepository().updateProfile(
+                id: userId,
+                username: nil,
+                fullName: nil,
+                profileImageUrl: imagePath
+            )
+
+            // Refresh profile data
+            await vm.loadProfile()
+
+        } catch {
+
         }
     }
 }

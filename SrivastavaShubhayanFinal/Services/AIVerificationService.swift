@@ -26,7 +26,7 @@ final class AIVerificationService {
     ///   - goalTitle: The title of the goal to verify against
     /// - Returns: Verification result with score and reason
     func verifyProof(imagePath: String, goalTitle: String) async throws -> AIVerificationResult {
-        
+            
         
         
 

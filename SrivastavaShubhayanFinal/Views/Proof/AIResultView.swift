@@ -16,6 +16,7 @@ struct VerificationResult {
 struct AIResultView: View {
     let goal: Goal
     let imageData: Data
+    let onRetry: () -> Void
 
     @State private var isLoading = true
     @State private var result: VerificationResult?
@@ -83,7 +84,7 @@ struct AIResultView: View {
                                     .font(AppTypography.h2)
                                     .foregroundColor(AppColors.textDark)
 
-                                Text("Our AI is verifying your photo")
+                                Text("Do not close the app while we verify your proof, this won't take long.")
                                     .font(AppTypography.body)
                                     .foregroundColor(AppColors.textMedium)
                             }
@@ -92,16 +93,15 @@ struct AIResultView: View {
                     } else if let result = result {
                         VStack(spacing: AppSpacing.xl) {
                             // Result card
-                            VStack(spacing: AppSpacing.lg) {
+                            VStack(spacing: AppSpacing.md) {
                                 // Title
                                 Text(result.verified ? "Great job!" : "Hmm, not quite...")
                                     .font(AppTypography.h2)
                                     .foregroundColor(result.verified ? AppColors.primaryGreen : AppColors.sand)
                                 .foregroundColor(AppColors.textMedium)
                                 .padding(.horizontal, AppSpacing.lg)
-                                .padding(.vertical, AppSpacing.sm)
 
-                                // Reason
+                                // Reason for AI to approve or reject proof
                                 Text(result.reason)
                                     .font(AppTypography.body)
                                     .foregroundColor(AppColors.textMedium)
@@ -173,6 +173,7 @@ struct AIResultView: View {
             } else if let result = result, !result.verified {
                 VStack(spacing: 0) {
                     Button {
+                        onRetry()
                         dismiss()
                     } label: {
                         Text("Try Another Photo")
@@ -190,6 +191,7 @@ struct AIResultView: View {
             } else if errorMessage != nil {
                 VStack(spacing: 0) {
                     Button {
+                        onRetry()
                         dismiss()
                     } label: {
                         Text("Try Again")
@@ -272,22 +274,17 @@ struct AIResultView: View {
 
         Task {
             do {
-                // Step 3: Save proof to database
-                
+                // Step 3: Save proof to database with verification results
+                print("💾 Saving proof with verification: verified=\(verificationResult.verified), score=\(verificationResult.score)")
                 let proof = try await proofsRepo.createProof(
                     goalId: goal.id,
                     userId: userId,
                     imagePath: imagePath,
-                    caption: nil // Can add caption input later
-                )
-                
-
-                // Update verification status
-                _ = try await proofsRepo.updateVerification(
-                    proofId: proof.id,
+                    caption: nil, // Can add caption input later
                     verified: verificationResult.verified,
                     score: verificationResult.score
                 )
+                print("✅ Proof saved with ID: \(proof.id)")
 
                 // Step 4: Update streak
                 

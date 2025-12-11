@@ -101,7 +101,6 @@ final class ProfileViewModel: ObservableObject {
     /// Load profile image from storage
     private func loadProfileImage(path: String) async {
         guard let publicURL = ImageUploadService.shared.getProfileImageURL(for: path) else {
-            print("❌ Failed to get profile image URL")
             return
         }
 

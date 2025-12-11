@@ -275,7 +275,6 @@ struct AIResultView: View {
         Task {
             do {
                 // Step 3: Save proof to database with verification results
-                print("💾 Saving proof with verification: verified=\(verificationResult.verified), score=\(verificationResult.score)")
                 let proof = try await proofsRepo.createProof(
                     goalId: goal.id,
                     userId: userId,
@@ -284,7 +283,6 @@ struct AIResultView: View {
                     verified: verificationResult.verified,
                     score: verificationResult.score
                 )
-                print("✅ Proof saved with ID: \(proof.id)")
 
                 // Step 4: Update streak
                 

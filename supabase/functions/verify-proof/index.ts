@@ -1,14 +1,8 @@
-// supabase/functions/verify-proof/index.ts
-
 // This function:
 // 1. Accepts JSON: { imagePath: string, goalTitle: string }
 // 2. Creates a signed URL from the storage bucket to access the image
 // 3. Calls OpenAI Vision API with a prompt about the goal
 // 4. Returns { verified: boolean, score: number, reason: string }
-//
-// NOTE: Uses SUPABASE_SERVICE_ROLE_KEY to create signed URLs from the storage bucket.
-// The verification result is returned to the app, which then updates the database
-// using the authenticated user's credentials (respecting RLS policies).
 
 import { serve } from "https://deno.land/std@0.181.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -29,7 +23,7 @@ serve(async (req) => {
       });
     }
 
-    // Get a signed URL for the image (valid for e.g. 5 minutes)
+    // Get a signed URL for the image (valid for 5 minutes)
     const { data: signedData, error: signedError } = await supabase.storage
       .from("proof-images")
       .createSignedUrl(imagePath, 60 * 5);
@@ -42,7 +36,6 @@ serve(async (req) => {
 
     const imageUrl = signedData.signedUrl;
 
-    // Build prompt for structured response
     const prompt = `You are verifying if an image shows evidence of completing a habit goal.
 
 Goal: "${goalTitle}"
@@ -58,7 +51,6 @@ Respond ONLY with valid JSON in this exact format:
 
 Be strict but fair. The image should clearly show the habit being performed or completed.`;
 
-    // Call OpenAI vision with structured output
     const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -100,7 +92,6 @@ Be strict but fair. The image should clearly show the habit being performed or c
       aiDecision = JSON.parse(responseText);
     } catch (parseError) {
       console.error("Failed to parse AI response:", responseText);
-      // Fallback to basic heuristic if JSON parsing fails
       const lower = responseText.toLowerCase();
       aiDecision = {
         verified: lower.includes("yes") || lower.includes("verified") || lower.includes("correct"),
